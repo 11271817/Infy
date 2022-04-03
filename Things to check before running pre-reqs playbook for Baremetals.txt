@@ -1,0 +1,162 @@
+Things to validate once Linux team is handover the Baremetal:
+We need to have "caasadm" user, group(does not matter if it is a primary or secondary) and the password should be "HPEonhpe!!2017"
+
+#get the ssh-private key from respective cluster primary controller node under /home/caasadm/.ssh/id_rsa, save it into a file without any format and use it to add into K8host.
+
+[root@i2l00233 ~]# cat /proc/cmdline
+BOOT_IMAGE=/vmlinuz-3.10.0-1160.31.1.el7.x86_64 root=/dev/mapper/system-root ro ipv6.disable=1 crashkernel=auto spectre_v2=retpoline iscsi_firmware ip=ibft rd.lvm.lv=system/root rd.lvm.lv=system/swap cgroup.memory=nokmem
+
+
+[root@i2l00233 ~]# uname -a
+Linux i2l00233.dc02.its.hpecorp.net 3.10.0-1160.31.1.el7.x86_64 #1 SMP Thu Jun 10 13:32:12 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
+
+[root@i2l00233 ~]# cat /etc/centos-release
+CentOS Linux release 7.9.2009 (Core)
+
+[root@i2l00233 ~]# id caasadm
+uid=1005(caasadm) gid=1002(remote) groups=1002(remote),10(wheel),100(users),1006(caasadm)
+
+#if "caasadm" group is not available, please makesure create it with below command and add the user to group.
+[root@i2l00234 ~]# groupadd caasadm
+[root@i2l00234 ~]# usermod -a -G caasadm caasadm
+[root@i2l00234 ~]# id caasadm
+uid=1005(caasadm) gid=100(users) groups=100(users),1002(remote),1006(caasadm)
+
+
+[root@i2l00233 ~]# hostname -f
+i2l00233.dc02.its.hpecorp.net
+
+[root@i2l00233 ~]# nslookup i2l00233.dc02.its.hpecorp.net
+Server:         10.79.3.12
+Address:        10.79.3.12#53
+
+Name:   i2l00233.dc02.its.hpecorp.net
+Address: 16.229.25.58
+
+
+[root@i2l00233 ~]# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+2: ens3f0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether aa:59:38:20:00:c0 brd ff:ff:ff:ff:ff:ff
+3: ens3f1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether aa:59:38:20:00:c1 brd ff:ff:ff:ff:ff:ff
+4: ens2f0: <NO-CARRIER,BROADCAST,MULTICAST,SLAVE,UP> mtu 1500 qdisc mq master bond0 state DOWN group default qlen 1000
+    link/ether aa:59:38:20:00:c3 brd ff:ff:ff:ff:ff:ff
+5: ens2f1: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 1500 qdisc mq master bond0 state UP group default qlen 1000
+    link/ether aa:59:38:20:00:c3 brd ff:ff:ff:ff:ff:ff
+6: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether aa:59:38:20:00:c3 brd ff:ff:ff:ff:ff:ff
+    inet 16.229.25.58/24 brd 16.229.25.255 scope global noprefixroute bond0
+       valid_lft forever preferred_lft forever
+
+lsblk output(Plase take i2l00233 node for reference):
+/ - 50GB
+/srv - 100GB
+/opt - 100GB
+/var - around 200GB
+one - 500GB LUN
+Three - 2TB LUNS and one 1TB LUN can be reclaimed after adding the below 2 LUNS:
+   => 814GB
+   => 210GB
+swap must be 160GB
+
+
+
+#After Validating node from Linux-Team and Edit the config files:
+
+yum install vim -y 
+
+#Edit The /etc/ssh/sshd_config
+#make sure we have "#Port 22" line, after "Protocol 2" line:
+
+vi /etc/ssh/sshd_config
+---
+Protocol 2
+#Port 22  <= This needs to be added.
+---
+systemctl restart sshd
+
+visudo
+----
+## Same thing without a password
+# %wheel        ALL=(ALL)       NOPASSWD: ALL
+%caasadm        ALL=(ALL)       NOPASSWD: ALL
+
+## Read drop-in files from /etc/sudoers.d (the # here does not mean a comment)
+#includedir /etc/sudoers.d
+caasadm         ALL=(ALL)       NOPASSWD: ALL
+buildadm        ALL=(ALL)       ALL
+----
+
+
+
+yum remove docker python3* -y
+
+yum list available | grep openldap
+yum list installed | grep openldap
+yum downgrade openldap -y
+yum list installed | grep openldap
+yum list available | grep openldap
+
+
+-----
+After running the pre-reqs ansible playbook:
+
+#ssh into new node from primary controller:
+[caasadm@i2lg11798 ~]$ ssh caasadm@16.229.25.53
+The authenticity of host '16.229.25.53 (16.229.25.53)' can't be established.
+ECDSA key fingerprint is SHA256:B5KWtu/eyEhGFuTYNoUOlg+GSlY5FsiGJKxnjk4uiZg.
+ECDSA key fingerprint is MD5:0c:41:2c:44:9b:9c:c2:fd:08:18:41:7d:43:44:7f:89.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '16.229.25.53' (ECDSA) to the list of known hosts.
+/-------------------------------------------------------------------------\
+| This computing system is a company owned asset and provided for the     |
+| exclusive use of authorized personnel for business purposes.            |
+| All information and data created, accessed, processed, or stored using  |
+| this system (including personal information) are subject to monitoring, |
+| auditing, or review to the extent permitted by applicable law.          |
+| Unauthorized use or abuse of this system may lead to corrective action  |
+| including termination of employment, civil and/or criminal penalties.   |
+\-------------------------------------------------------------------------/
+Last login: Tue Oct  5 20:12:20 2021 from 16.229.24.18
+HEWLETT PACKARD ENTERPRISE - AUTHORIZED USE ONLY
+[caasadm@i2l00228 ~]$ exit
+logout
+Connection to 16.229.25.53 closed.
+
+
+[root@i2l00233 ~]# cat /etc/environment
+http_proxy=http://proxy.houston.hpecorp.net:8080/
+https_proxy=http://proxy.houston.hpecorp.net:8080/
+no_proxy="*.hpecorp.net, dashboard-hpecp-itg.dc02.its.hpecorp.net, .hpecorp.net, .SVC, localhost, 127.0.0.1, .default.svc, .cluster.local, 10.75.68.28, 10.75.68.29, 10.75.68.30, 10.75.68.31, 10.75.68.32, 10.75.68.33, 10.75.68.34, 10.75.68.35, 10.75.68.36, 16.228.18.29, 16.228.18.30, 16.229.25.61, 16.229.25.62, 16.229.25.63, 16.229.25.64, 16.229.25.65, 16.229.25.66, 16.229.25.50, 16.229.25.51, 16.229.25.52, 16.229.25.53, 16.229.25.54, 16.229.25.55, 16.229.25.57, 16.229.25.58, 16.229.25.59, 16.229.25.60"
+
+
+[root@i2l00233 ~]# cat /etc/systemd/system/docker.service.d/docker-proxy.conf
+[Service]
+Environment="HTTP_PROXY=http://proxy.its.hpecorp.net:8080"
+Environment="HTTPS_PROXY=http://proxy.its.hpecorp.net:8080"
+Environment="NO_PROXY=*.hpecorp.net, dashboard-hpecp-itg.dc02.its.hpecorp.net, .hpecorp.net, .SVC, localhost, 127.0.0.1, .default.svc, .cluster.local, 10.75.68.28, 10.75.68.29, 10.75.68.30, 10.75.68.31, 10.75.68.32, 10.75.68.33, 10.75.68.34, 10.75.68.35, 10.75.68.36, 16.228.18.29, 16.228.18.30, 16.229.25.61, 16.229.25.62, 16.229.25.63, 16.229.25.64, 16.229.25.65, 16.229.25.66, 16.229.25.50, 16.229.25.51, 16.229.25.52, 16.229.25.53, 16.229.25.54, 16.229.25.55, 16.229.25.57, 16.229.25.58, 16.229.25.59, 16.229.25.60"
+Environment="http_proxy=http://proxy.its.hpecorp.net:8080"
+Environment="https_proxy=http://proxy.its.hpecorp.net:8080"
+Environment="no_proxy=*.hpecorp.net, dashboard-hpecp-itg.dc02.its.hpecorp.net, .hpecorp.net, .SVC, localhost, 127.0.0.1, .default.svc, .cluster.local, 10.75.68.28, 10.75.68.29, 10.75.68.30, 10.75.68.31, 10.75.68.32, 10.75.68.33, 10.75.68.34, 10.75.68.35, 10.75.68.36, 16.228.18.29, 16.228.18.30, 16.229.25.61, 16.229.25.62, 16.229.25.63, 16.229.25.64, 16.229.25.65, 16.229.25.66, 16.229.25.50, 16.229.25.51, 16.229.25.52, 16.229.25.53, 16.229.25.54, 16.229.25.55, 16.229.25.57, 16.229.25.58, 16.229.25.59, 16.229.25.60"
+
+
+[root@i2l00233 ~]# cat /etc/profile.d/set_proxy.sh
+export http_proxy=http://proxy.its.hpecorp.net:8080
+export https_proxy=http://proxy.its.hpecorp.net:8080
+export ftp_proxy=http://proxy.its.hpecorp.net:8080
+export no_proxy="*.hpecorp.net, dashboard-hpecp-itg.dc02.its.hpecorp.net, .hpecorp.net, .SVC, localhost, 127.0.0.1, .default.svc, .cluster.local, 10.75.68.28, 10.75.68.29, 10.75.68.30, 10.75.68.31, 10.75.68.32, 10.75.68.33, 10.75.68.34, 10.75.68.35, 10.75.68.36, 16.228.18.29, 16.228.18.30, 16.229.25.61, 16.229.25.62, 16.229.25.63, 16.229.25.64, 16.229.25.65, 16.229.25.66, 16.229.25.50, 16.229.25.51, 16.229.25.52, 16.229.25.53, 16.229.25.54, 16.229.25.55, 16.229.25.57, 16.229.25.58, 16.229.25.59, 16.229.25.60"
+
+
+#After Phase2 installation is completed while adding a node as kubernetes hosts, Please perform docker login as a root user in "/" path.
+docker login
+#Please check with Naveen Rajan for docker creds.
+
+#After updating the new nodes into Kubernetes cluster, if the newly added nodes are in "NotReady" state and pods under kube-system u"ImagepullBackOff" error, 
+Please execute the below commands:
+
+cp -r .docker/config.json /var/lib/kubelet/
+systemctl restart kubelet
