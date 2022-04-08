@@ -1,0 +1,54 @@
+Jenkinshub has installed a series of plugins to add important functionalities for business application teams.
+
+Please reach out to CaaS platform support team in the Jenkins flowdock channel if you need any other plugins for your application team use cases. We will deploy your required plugin on Jenkins ITG environment so that you can validate and confirm us to install your required plugin in Jenkins production environment.
+
+The plugins used and their version are described in the following table:
+
+Plugin	Version	Description
+antisamy-markup-formatter	1.5	Uses the OWASP Java HTML Sanitizer to allow safe-seeming HTML markup to be entered in project descriptions and the like
+ansicolor	0.7.0	Adds ANSI coloring to the Console Output
+audit-trail	2.5	Keeps a log of who performed particular Jenkins operations, such as configuring jobs
+credentials-binding	1.19	Allows credentials to be bound to environment variables for use from miscellaneous build steps
+credentials	2.2.0	This plugin allows you to store credentials in Jenkins
+embeddable-build-status	2.0.3	This plugin adds the embeddable build status badge to Jenkins so that you can easily hyperlink/show your build status from elsewhere
+git	3.12.1	This plugin integrates Git with Jenkins
+github	1.30.0	This plugin integrates GitHub to Jenkins
+github-oauth	0.33	Authentication plugin using GitHub OAuth to provide authentication and authorization capabilities for GitHub and GitHub Enterprise
+hashicorp-vault-plugin	2.3.1	Populates environment variables from secrets stored in HashiCorp's Vault
+htmlpublisher	1.23	This plugin publishes HTML reports
+jenkins-flowdock-plugin	1.1.8	This plugin posts build notifications to your flow at Flowdock
+job-dsl	1.71	This plugin allows Jobs and Views to be defined via DSLs
+marathon	1.6.0	Adds a Marathon Deployment post-build item that updates an application within a target Marathon instance
+matrix-auth	2.5	Offers matrix-based security authorization strategies (global and per-project)
+mask-passwords	2.12.0	This plugin allows masking passwords that may appear in the console
+metrics-graphite	3.0.0	This plugin streams Metrics to a Graphite server
+modernstatus	1.2	A modern status icon set for Jenkins
+skip-certificate-check	1.0	This is a plugin that makes JVM bypass all the HTTPS certificate checks. Convenient if you deal with self-signed certificates and so on. Use with caution
+timestamper	1.11.3	Adds timestamps to the Console Output
+view-job-filters	1.27	Create smart views with exactly the jobs you want. Your smart views can automatically include or exclude jobs by using things like the SCM path or type, the job type, build statuses or trends or triggers, relevance to the logged-in user, email recipients, Maven configuration, job parameterization, and user permissions. Mix and match filters to narrow down to exactly what you want
+workflow-aggregator	2.5	A suite of plugins that lets you orchestrate automation, simple or complex. See Pipeline as Code with Jenkins for more details
+blueocean	1.1.7	BlueOcean Aggregator
+lockable-resources	2.8	This plugin allows to define external resources (such as printers, phones, computers) that can be locked by builds. If a build requires an external resource which is already locked, it will wait for the resource to be free
+pipeline-milestone-step	1.3.1	Plugin that provides the milestone step
+pipeline-model-definition	1.7.0	An opinionated, declarative Pipeline
+jacoco	3.0.7	This plugin integrates JaCoCo code coverage reports to Jenkins
+pipeline-utility-steps	2.6.1	Utility steps for pipeline jobs
+yet-another-docker-plugin	0.2.0	Yet Another Docker plugin. Provides docker Cloud provisioning
+mailer	1.32	This plugin allows you to configure email notifications for build results
+plain-credentials	1.7	Allows use of plain strings and files as credentials
+maven-plugin	3.6	This plug-in provides, for better and for worse, a deep integration of Jenkins and Maven: Automatic triggers between projects depending on SNAPSHOTs, automated configuration of various Jenkins publishers (Junit, ...)
+sonar	2.11	This plugin allows an easy integration of SonarQube, the open source platform for Continuous Inspection of code quality
+anchore-container-scanner	1.0.22	This plugin provides container image scanning using Anchore Engine
+uno-choice	2.5	This plug-in provides additional parameter types for jobs, that allow you to cascade changes and render images or other HTML elements instead of the traditional parameter
+Office-365-Connector	4.13.2	This plugin is used to send actionable messages in Outlook, Office 365 Groups, and Microsoft Teams
+pipeline-maven	3.9.3	This plugin provides integration with Pipeline, configures maven environment to use within a pipeline job by calling sh mvn or bat mvn. The selected maven installation will be configured and prepended to the path
+slack	2.34	This plugin Provides Jenkins notification integration with Slack
+parameterized-scheduler	0.8	Plugin to support setting parameters in the build schedule
+App teams onboarding to Jenkins non-prod (only POC of application build use cases):
+Please reach out to us on our slack channel with the required plugin and version. We will analyze the plugin requirements, install in a non-prod Jenkins instance and let you know once it is ready for app team validation. Please proceed with below steps post our confirmation in Slack.
+Fork the hpe4it-jenkins-jobs repo.
+Switch to development branch. 
+Follow the onboarding steps mentioned here. Please ensure that the changes are done in the development branch.
+Create a Pull Request to hpe4it-jenkins-jobs development branch following the earlier step.
+Once merged CaaS Support team will share the Jenkins non-prod instance details where the plugin is installed, for you to test your app use cases.
+After app team confirms that the use cases are tested, the same plugin will be installed in Jenkins Production instance.
