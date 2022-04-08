@@ -1,0 +1,37 @@
+Follow this page to create a Network Connectivity Request (NCR) for your Application
+1. Go to SharePoint and browse to NGIT Support
+
+
+
+2. Browse to Network Connectivity Service Request --> Log New Request
+
+
+
+
+
+3. A Network Connectivity Requests Form will pop up. Download the latest version of the NCR Form form this page
+
+Network Connectivity Requests Form: 
+
+4. Based on your application, fill out the sheets available in this NCR Form
+
+NCR Form: 
+
+Refer this document for CaaS1 and CaaS2 DC/OS and UCP Agent node IPs information
+Refer this document for CaaS Architecture
+Note:
+For Inbound traffic to DC/OS environment, please use the Public Node IPs of the DC/OS Cluster
+For Outbound traffic from DC/OS environment, please use the Private Node IPs of the DC/OS Cluster
+For Inbound and Outbound traffic on Docker-EE UCP environment, please use the Worker Node IPs of Docker-EE UCP Cluster
+5. Fill out the required information on the Network Connectivity Requests Form
+
+You can save your Information as you fill the form by clicking on FIRST SAVE
+6. Attach the NCR Form on this Network Connectivity Requests Form and click on UPDATE
+
+
+
+7. Check the status of your NCR on the NGIT Support Page
+
+
+
+✨Please check back for more updates
