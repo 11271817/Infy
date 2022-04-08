@@ -1,0 +1,39 @@
+SSL Certificate Renew Process:
+Get your old CSR ready.
+Go to https://myitsupport.ext.hpe.com/myITsupport/ITSArticle?ArticleNumber=000001599 --> Use External enrollment - DigiCert public CA --> Always use SHA256 with SHA256 root. don't use SHA1 --> Use the below SAN's or add new SAN's to the below if there are any other new SAN's. Use vault-admins@groups.int.hpe.com and 21191 for Enterprise Directory Global Group and EPR-ID
+vault-dev.dc02.its.hpecorp.net
+vault.its.hpecorp.net
+vault-dev.dc01.its.hpecorp.net
+vault.dc02.its.hpecorp.net
+vault-itg.dc02.its.hpecorp.net
+vault-itg.its.hpecorp.net
+vault-dev.its.hpecorp.net
+vault-itg.dc01.its.hpecorp.net
+vault.dc01.its.hpecorp.net
+Generate DigitalBadge SSL/Server certificate for vault.docker.hpecorp.net.-->lets name it "new_cert_generated_2020"
+
+Create a secret with some new secret name "2020_vault_tls_cert" on the ucp environment using cli
+
+docker secret create 2020_vault_tls_cert new_cert_generated_2020
+From the UI go to stacks-->dindc-core-secretsmngt-->services-->dindc-core-secretsmngt_nginx-redirect--->configure--->Environment---> use secret+ ---> secretName(2020_vault_tls_cert),targetname(vault_tls_cert) ---> Advanced Settings ---> File Mode 644---> confirm ---> click "X" on the old secret with "vault_tls_cert"
+
+Make sure you have the below config on your secrets and then click save.
+
+ID                             NAME                TARGET NAME      GID  UID  MODE
+bj8vXXXXXXXXXXXXXXXX4cb5c    vault_tls_key         vault_tls_key      0   0    644
+bj8vXXXXXXXXXXXXXXXX4cb5c    2020_vault_tls_cert   vault_tls_cert     0   0    644
+Do the same for "dindc-core-secretsmngt_vault" From the UI go to stacks-->dindc-core-secretsmngt-->services-->dindc-core-secretsmngt_vault--->configure--->Environment---> use secret+ ---> secretName(2020_vault_tls_cert),targetname(vault_tls_cert) ---> Advanced Settings ---> File Mode 644---> confirm ---> click "X" on the old secret with "vault_tls_cert" and remove it from config.
+
+Now nginx and vault containers will restart and vault will go to the sealed mode. In the browser you can go to https://vault.docker.hpecorp.net/ and validate if the new certs are implemented.
+
+From Docker CLI delete last year cert secret vault_tls_cert
+
+docker secret rm vault_tls_cert-ID
+Recreate secret "vault_tls_cert" with new new_cert_generated_2020
+docker secret create vault_tls_cert new_cert_generated_2020
+This second time creation of secret is for maintaining the same state of deployment production docker compose file.
+
+Now go the ucp UI and update dindc-core-secretsmngt_vault and dindc-core-secretsmngt_nginx-redirect services with newly updated vault_tls_cert secret name, vault_tls_cert target name and 644 mode using the same process mentioned above and remove 2020_vault_tls_cert.
+Once both nginx and vault containers are up you can validate certs from browser and run Ansible Unseal playbook.
+Just to make sure everything is good, run a Jekins job.
+Now delete 2020_vault_tls_cert secret.
