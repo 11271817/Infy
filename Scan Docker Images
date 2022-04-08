@@ -1,0 +1,31 @@
+Scanning Docker images
+The first step to start scanning your Docker images from Jenkins is to include the corresponding steps in the Jenkinsfile, please check below for the syntax.
+NOTE: Image must be pushed already to DTR in order to scan it.
+
+stage('Analyze'){
+    steps {
+        script {
+            def imageLine = "hub.docker.hpecorp.net/${IMAGE_ORG}/${IMAGE_REPO}:${TAG_NAME}"
+            writeFile file: 'anchore_images', text: imageLine
+            anchore name: 'anchore_images'
+        }
+    }
+}
+After pushing this new change to your Jenkinsfile then go to Jenkins build output to check the status of the results and if it's successful then check the Anchore Report from the left menu.
+
+
+Do not stop job/build regardless of scan results / scanner performance.
+If you wish to implement the scanning but do not want the job to fail/exit based on the scanning results please consider the following flags:
+
+script {
+            def imageLine = "hub.docker.hpecorp.net/${IMAGE_ORG}/${IMAGE_REPO}:${TAG_NAME}"
+            writeFile file: 'anchore_images', text: imageLine
+            anchore name: 'anchore_images', bailOnFail: false, bailOnPluginFail: false, engineRetries: '1200'
+        }
+Recommended values:
+Flag	Description	Suggested value
+bailOnFail	If set to ‘false’, the Anchore Container Image Scanner step won’t affect the execution of your pipeline if the policy evaluation result fails.	'false'
+bailOnPluginFail	If set to ‘false’, the Anchore Container Image Scanner step won’t affect the execution of your pipeline if the plugin finds an error during the scan.	'false'
+engineRetries	Number of polling attempts spaced at 1 second intervals spent waiting for the Anchore Engine operation to complete. It’s recommended to set this value as ‘1200’.	'1200'
+NOTE: If your scan presents a persistent problem please reach the CaaS team in the Jenkins Slack Channel.
+
