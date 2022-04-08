@@ -1,0 +1,100 @@
+Follow these steps to raise a request for creating DNS Entry for your application.
+Go to Service Now Portal
+Login to the portal using HPE Employees SSO
+Navigate to Request Something -> Network -> Network Services -> DNS -> New DNS Alias Request
+Fill out the form. Provide the Required Information - Requested for, Select the datacenter location and Enter aliases and hostnames
+For Example:
+
+Here are all the items you are required to fill while raising a Global and Local DNS entries for an application on Docker-EE CoLo1:
+
+
+
+Submit the form by clicking on Submit on the right.
+You will now receive an email confirmation from ServiceNow with the Case details.
+
+To create a Local or Global DNS, point your application DNS to the Cname that resolves to the Worker nodes of the Docker-EE UCP and Public nodes of the DC/OS environment.
+
+For a complete list of the CaaS1 & CaaS2 DC/OS and Docker-EE Cluster IPs, Please see here
+Requesting a DNS entry for Docker-EE UCP Environment:
+Below are the Cname you should be using while requesting a DNS entry for applications on Docker-EE UCP environment.
+
+Docker-EE UCP CoLo1:
+* For ITG environment, use --> hrm-itg-docker.dc01.its.hpecorp.net
+* For PRO environment, use --> hrm-docker.dc01.its.hpecorp.net
+
+Docker-EE UCP CoLo2:
+* For ITG environment, use --> hrm-itg-docker.dc02.its.hpecorp.net
+* For PRO environment, use --> hrm-docker.dc02.its.hpecorp.net
+Requesting a DNS entry for DC/OS Environment:
+Below are the Cname you should be using while requesting a DNS entry for applications on DC/OS environment.
+
+DC/OS CoLo1:
+* For ITG environment, use --> mlb-itg-dcos.dc01.its.hpecorp.net
+* For PRO environment, use --> mlb-dcos.dc01.its.hpecorp.net
+
+DC/OS CoLo2:
+* For ITG environment, use --> mlb-itg-dcos.dc02.its.hpecorp.net
+* For PRO environment, use --> mlb-dcos.dc02.its.hpecorp.net
+Example Application DNS Naming Standards:
+Here are some example naming conventions for a DNS entry on ITG and PRO.
+
+The only difference between a Local and Global DNS is that there will be no Data Center Site number (dc01/dc02) for a Global DNS.
+Local DNS example:
+* For applications on ITG: app-name-itg.dc01.its.hpecorp.net
+* For applications on PRO: app-name.dc01.its.hpecorp.net
+
+Global DNS example:
+* For applications on ITG: app-name-itg.its.hpecorp.net
+* For applications on PRO: app-name.its.hpecorp.net
+Requesting a Local DNS:
+Example:
+
+* app-name-itg.dc01.its.hpecorp.net --> hrm-itg-docker.dc01.its.hpecorp.net     #Local DNS for an application on Docker-ITG CoLo1
+* app-name-itg.dc02.its.hpecorp.net --> hrm-itg-docker.dc02.its.hpecorp.net     #Local DNS for an application on Docker-ITG CoLo2
+* app-name-itg.dc01.its.hpecorp.net --> mlb-itg-dcos.dc01.its.hpecorp.net       #Local DNS for an application on DC/OS-ITG CoLo1
+* app-name-itg.dc02.its.hpecorp.net --> mlb-itg-dcos.dc02.its.hpecorp.net       #Local DNS for an application on DC/OS-ITG CoLo2
+Requesting a Global DNS:
+Example:
+
+* app-name-itg.its.hpecorp.net --> hrm-itg-docker.dc01.its.hpecorp.net       #Global DNS for an application on Docker-ITG CoLo1
+* app-name-itg.its.hpecorp.net --> hrm-itg-docker.dc02.its.hpecorp.net       #Global DNS for an application on Docker-ITG CoLo2
+* app-name-itg.its.hpecorp.net --> mlb-itg-dcos.dc01.its.hpecorp.net         #Global DNS for an application on DC/OS-ITG CoLo1
+* app-name-itg.its.hpecorp.net --> mlb-itg-dcos.dc02.its.hpecorp.net         #Global DNS for an application on DC/OS-ITG CoLo2
+ Pages 18
+Getting Started
+
+CaaS Wiki Home
+HPE IT Ezmeral Container Platform
+
+Ezmeral Container Platform Wiki
+Configuring GLB for DR
+Monitoring Containers on ECP with NewRelic
+FAQs
+DC/OS
+
+Overview of DC/OS
+DC/OS Application on-boarding
+DC/OS User on-boarding
+Deploying Services on DC/OS
+Configuring GLB for DR
+FAQs
+Docker EE UCP
+
+Overview of Docker EE UCP
+Docker EE UCP Application on-boarding
+Docker EE UCP User on-boarding
+Layer7 Routing Labels in UCP v3.x
+FAQs
+Service Help
+
+Request for DNS Entry
+Request for NCR
+Request for NCS
+Reporting issues
+Reference
+
+HPE JenkinsHub for CI/CD
+Hashicorp Vault for Secret Management
+Run time container images scanning Policy
+Portworx wiki
+Clone this wiki locally
