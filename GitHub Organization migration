@@ -1,0 +1,14 @@
+Please follow the below steps to migrate your Jenkins jobs that were using an application specific Organization (github.com/< mygithuborg >) to HPE Organization (github.com/hpe/< mygithubrepo >).
+Fork the hpe4it-jenkins-jobs repo and ensure you are in master branch.
+Create a new folder based on your project or application name. For example if your app name is 'myawesomeapp', create a folder named 'myawesomeapp_folder' in the job_dsl folder.
+Move inside 'myawesomeapp_folder' folder and create a file named 'myawesomeapp.groovy'
+Copy the template available here and update the fields to, point to your app repo and provide your team members the access as needed.
+Commit the changes to your fork and raise a Pull request.
+Once the pull request is reviewed and merged, the new folder with repos from HPE Organization will be available in Jenkins.
+Note:- The existing GitHub Org name cannot be used as the names are Unique in Jenkins and can't have duplicate entries.
+
+Clean-up of Old Organization:
+Once all the repos from your application specific Organization (github.com/< mygithuborg >) is migrated to HPE Organization (github.com/hpe),
+
+Remove the 'mygithuborg' folder from job_dsl folder in your fork and commit the changes to your fork
+Raise a Pull request to the Origin repo hpe4it-jenkins-jobs.
