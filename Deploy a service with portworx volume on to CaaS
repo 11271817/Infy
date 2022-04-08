@@ -1,0 +1,129 @@
+Welcome to Portworx wiki !!
+We have Portworx as a solution for containerized applications that are deployed onto CaaS-Platform (DC/OS and Docker-UCP) and needed persistent storage. Portworx stores the data in the name of volumes for each application container.
+Some of the portworx volume capabilities are replication, encryption (LUKS format of dm-crypt and AES-256),local backups (snapshots), external backups (cloudsnaps-between Datacenters), file system type, shared volumes, block size, etc.,
+
+Portworx provides support for the following key value pairs:
+IO priority      - io_priority=[high|medium|low]
+Volume size      - size=[1..9] (volume size in GB)
+HA factor        - repl=[1,2,3]
+Block size       - bs=[4096...]
+Sharedv4 volume  - sharedv4=true
+File System      - fs=[xfs|ext4]
+Encryption       - passphrase=secret
+snap_schedule    - "periodic=mins#k;daily=hh:mm#k;weekly=weekday@hh:mm#k;monthly=day@hh:mm#k" where k is the number of snapshots to retain.
+NOTE:
+Portworx volumes size can be mentioned in Gigabytes only for current version. (G|M|T options will be available in future releases. G- Gigabytes, M-Megabytes, T-Terrabytes). Default is in Gigabytes for now.
+Maximum replication for each volume is 3. Default is 1.
+External backups set-up and restoring the volumes can be implemented by portworx/platform admins only at this moment.
+SHARED-VOLUMES NOTE:
+Shared volumes can be mounted to different containers with same portworx volume in-line specifications that are mentioned while deploying your initial container.
+You do not need to use shared volumes to have your data accessible on any host in the cluster. Any PX volumes can be exclusively accessed from any host as long as they are not simultaneously accessed. Shared volumes are for providing simultaneous (concurrent or shared) access to a volume from multiple hosts at the same time.
+You do not necessarily need a replication factor of greater than 1 on your volume in order for it to be shared. Even a volume with a replication factor of 1 can be shared on as many nodes as there are in your cluster.
+Usage of shared volumes for databases is not recommended and not supported.
+On-boarding:
+Please make sure to fill the CaaS_Application_Onboarding_Checklist with persistent storage requirement for your containerized application and attach it in GitHub pull request while on-boarding onto CaaS platform.
+
+Once your checklist is reviewed and approved by the Platform team, Please use the required portworx in-line specifications in your application marathon.json or compose.yml based on your requirement and platform you chosen(DC/OS or Docker-EE-UCP).
+
+Deploy an application with portworx volume onto DC/OS platform:
+PX-Volume inline specifications for Docker Containers:
+The inline specs can be passed in through an application marathon.json in DC/OS. Below is a common inline specs snippet from a marathon configuration file:
+
+"parameters": [
+  {
+	  "key": "volume-driver",
+	  "value": "pxd"
+  },
+  {
+	  "key": "volume",
+	  "value": "size=10,repl=2,fs=ext4,io_priority=high,name=new_vol:/var/lib/data"
+  }],
+Marathon.json Example for Docker Container:
+{
+  ...
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+     ...
+      "parameters": [
+        {
+          "key": "volume-driver",
+          "value": "pxd"
+        },
+        {
+          "key": "volume",
+          "value": "size=10,repl=2,fs=ext4,io_priority=high,name=new_vol:/var/lib/data"
+        }
+      ]
+    ],
+    ...
+  }
+}
+IMPORTANT NOTE: Portworx volume must be mounted to a container path(/var/lib/data) where the data will be saved inside the container.
+
+An additional Sample marathon.json with portworx inline specifications for Docker container application
+
+Marathon.json Example for Mesos/UCR Container:
+{
+  ...
+  "cmd" : ...,
+  "container" : {
+    "type": "MESOS",
+    "volumes": [
+      {
+        "containerPath": "/var/lib/data",
+        "mode": "RW",
+        "external": {
+          "size": 10,
+          "name": "new_vol",
+          "provider": "dvdi",
+          "options": {
+            "dvdi/repl": "2",
+            "dvdi/driver": "pxd"
+          }
+        }
+      }
+    ],
+    ...
+  }
+}
+Deploy an application with portworx volume onto Docker-EE-UCP platform:
+PX-Volume inline specifications for Docker Containers:
+The inline specs can be passed in through an application compose.yml in Docker-EE-UCP.
+
+version: '3.4'
+
+services:
+   wordpress:
+     depends_on:
+       - db
+     image: wordpress:latest
+     volumes:
+      - wpvol:/var/www/html
+   db:
+     image: mysql:5.7
+     volumes:
+       - sqlvol:/var/lib/mysql
+volumes:
+  wpvol:
+    driver: pxd
+    external: false
+    driver_opts:
+       size: 10
+       repl: 2
+       sticky: 'true'
+       io_priority: high
+       fs: ext4
+  sqlvol:
+    driver: pxd
+    external: false
+    driver_opts:
+       size: 10
+       repl: 2
+       sticky: 'true'
+       io_priority: high
+       fs: ext4
+An additional Sample compose.yml with portworx inline specifications for Docker container application
+
+Issues or Help:
+Please use DCOS-Hub and Docker-EE_Colo flowdock channels for any issues or help needed on portworx.
