@@ -1,0 +1,155 @@
+Exploring the Kubernetes Cluster Dashboard on NewRelic:
+Request for NewRelic access:
+To request access for the NewRelic Environment, please follow the below instructions.
+
+Go to Service Now
+
+Navigate to Home > Service Catalog > Monitoring as a Service > New Relic Access Request
+
+Fill out the form. Provide the Required Information - Request Type, EPRID, Roles Type, System Integrator and Description. ( For a privilege to create alerts for monitoring, select Roles Type : High Privilege user and High Privilege type : Alerts Manager )
+
+Submit the form by clicking on Request on the right
+
+You will now receive an email confirmation from ServiceNow with the Case details.
+
+View Kubernetes Cluster Health and Performance:
+The Kubernetes Cluster Explorer provides a multi-dimensional representation of a Kubernetes cluster that allows teams to drill down into Kubernetes data and metadata in a high-fidelity, curated UI that simplifies complex environments.
+
+To view the Kubernetes Cluster Explorer - Go to NewRelic Dashboard > Kubernetes Cluster > Click on the name of kubernetes cluster > Click on Go to the Kubernetes cluster explorer
+
+The cluster explorer employs a distinctive design that shows the entire cluster but that can easily shift its focus to hotspots within the cluster-with the most critical elements appearing in the middle. It visualizes the cluster as a series of four concentric rings:
+
+The outer ring shows the nodes of the cluster, with each node displaying CPU, memory, and storage performance metrics that provide at-a-glance understanding of the node’s overall health
+
+
+The next ring reveals information about the distribution and status of the pods associated with a selected node
+
+
+The third ring displays pods that have breached an alerting threshold—indicating that these pods may have health issues even if they are still running
+
+
+Finally, the inner ring displays pods that are not running or that Kubernetes is unable to schedule—due to a lack of resources, for example, because the wrong container image was specified
+
+
+Kubernetes Dashboard provides a curated dashboard experience with the cluster overall monitoring metrics like CPU, Memory, Pods per Namespaces, Pods per Nodes, Container CPU and Memory Usage, Volumes Usage, Pod Network Status etc.
+
+
+
+Filter Data for Application Container Metrics:
+The Kubernetes Cluster explorer provides filters to skim through applications using attributes like namespace, deployments, nodes or pods.
+
+Add a Filter with the desired attribute. For example, filter using namespaceName attribute to view all the pods deployed under the namespace.
+
+
+
+
+Hover over and click on the pod to browse through all the containers within the pod that is the application container, istio-init and istio-proxy containers.
+
+
+More information regarding the pod that is recent Events over the time frame, Pod details and Container Details etc will be displayed at the right.
+If your application is integrated with Newrelic APM, you can also browse the APM Data and check how the app is performing on each pod from here.
+
+
+From the same page, click on the See pod details to view a summary of the pod status. You can also find all the entities related to the pod like deployments, containers, host etc on the right under Related entities.
+
+
+Click on the container under Related entities to view its CPU/Memory/Storage metrics.
+
+
+You can also change the time frame using the time picker in the upper right corner.
+Browse your Kubernetes events:
+To browse the events in your namespace or related to a pod in your namespace, go to NewRelic Dashboard > Kubernetes Cluster > Click on the name of kubernetes cluster > Click on Go to the Kubernetes cluster explorer > Click on Events
+
+Use namespace or object name filter attribute to filter through events for a pod in a namespace.
+
+
+
+
+
+Alert on a condition:
+NewRelic lets you to setup customizable alert policies for Failed Application’s Kubernetes Objects like Pods, Deployments, and Services etc as well as CPU and Memory thresholds at the container level.
+
+Configuring Custom Alerts: To create an Email alert policy:
+
+Go to NewRelic Dashboard > Kubernetes Cluster Explorer
+On the Kubernetes Clusters page > click Manage Alerts on the top right
+
+
+Click Create alert condition
+
+
+On the Alerts Page:
+
+a. Provide Alert Name, Description
+
+b. Select the Alert Type – Kubernetes
+
+c. Under Narrow down entities – click on filter and select the application to monitor. The filter below selects the application deployment with the name – helloworld under the namespace – caasonhpe
+
+
+
+
+
+d. Under Defined thresholds > Select the desired condition for the alert. The below threshold example is set to monitor if the available pods are less than the desired pods. This will monitor whenever the helloworld pod is in failed/pending state for at least a minute.
+
+Similarly, thresholds can be set for the Pod’s CPU and Memory as well. For examples please see the below:
+
+
+
+
+
+e. Under Configuration > Alert Policy > Provide a Policy name and an email address to notify when the threshold is met
+
+
+
+f. Click Save to create the Alert settings
+
+NewRelic now alerts you with an incident whenever the threshold condition is met as well as when the incident is resolved.
+
+
+
+
+
+Note:
+CaaS Platform team has configured the Kubernetes Cluster Explorer on the HPE ECP environment. Application team can leverage this Kubernetes Cluster Explorer on New Relic Dashboard for monitoring their Application Container Metrics.
+ Pages 18
+Getting Started
+
+CaaS Wiki Home
+HPE IT Ezmeral Container Platform
+
+Ezmeral Container Platform Wiki
+Configuring GLB for DR
+Monitoring Containers on ECP with NewRelic
+FAQs
+DC/OS
+
+Overview of DC/OS
+DC/OS Application on-boarding
+DC/OS User on-boarding
+Deploying Services on DC/OS
+Configuring GLB for DR
+FAQs
+Docker EE UCP
+
+Overview of Docker EE UCP
+Docker EE UCP Application on-boarding
+Docker EE UCP User on-boarding
+Layer7 Routing Labels in UCP v3.x
+FAQs
+Service Help
+
+Request for DNS Entry
+Request for NCR
+Request for NCS
+Reporting issues
+Reference
+
+HPE JenkinsHub for CI/CD
+Hashicorp Vault for Secret Management
+Run time container images scanning Policy
+Portworx wiki
+Clone this wiki locally
+https://github.hpe.com/CaaSonHPE/Wiki.wiki.git
+© 2022 GitHub, Inc.
+Help
