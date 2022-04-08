@@ -1,0 +1,12 @@
+GLB Configuration for HPE ECP - PROD With F5 Load Balancer
+The Global Load Balancer (GLB/GTM) will perform a health check and route the requests to the primary HPE IT ECP PROD environment's LTM
+This LTM in turn performs a health check of the respective Istio nodes and routes the requests to the underlying Kubernetes Worker nodes
+In case of failure of the Primary PROD HPE IT ECP environment, the Global LTM will route the traffic to the DR PROD HPE IT ECP environment
+
+
+NOTE:
+
+Application Owners needs to decide if their stateless/stateful application requires an auto/manual load balancing configuration in order to switch between Primary/DR data centers in case of a disaster/failure event
+Application Owners are responsible to take care of any stateful persistent data that needs to be available in DR environment by working with DBA/CaaS/Application Ops Team based on their business RPO and RTO requirements.
+Application Owners are responsible to make sure that the firewall rules are in place ensuring the connectivity from source to the respective LTM VIPs by raising the required NCR. To raise an NCR, please refer this documentation
+To raise a request for Load Balancer, please reach out to HOH-Network-OPS Team (hoh-network-ops@hpe.com) for more information
