@@ -1,0 +1,956 @@
+HPE IT Ezmeral Container Platform
+Naveen Rajan-Infosys edited this page on Feb 5 · 69 revisions
+Welcome to the HPE IT ECP Wiki! This is a reference documentation for deploying applications on HPE IT Ezmeral Container Platform.
+
+HPE Global IT Ezmeral Container Platform Architecture
+Application/User On-boarding Process:
+To get started with on-boarding Application/Users into the HPE ECP environments, please follow the instructions below.
+
+1. Go to Global-IT Services > Kubernetes > Click on Try
+
+2. Requestor will then be redirected to the Power Apps Page. Here, please fill out the request form with the below required information, Review and Submit the request.
+
+EPRID - EPRID of the application
+Location - Select Colo1/Colo2
+Resource Name - This will be the tenant/namespace name
+Cluster Name - Select the Kubernetes Cluster from the ECP environment
+ITCloud-Lab for HPE ECP Lab environment
+ECP-ITG for HPE ECP ITG environment
+Service Size - This is the Tenant CPU/Memory Resource Quota requirement for the application
+NOTE: Please make sure to include the below mandatory buffer for istio and kiali components that runs in the tenant while considering the Service Size.
+
+Pod Name	CPU	Memory	Note
+istioinit-ipcleantables/istio-init	100m	50Mi	This buffer should be considered per pod
+istio-proxy	100m	256Mi	This buffer should be considered per pod
+Kiali	200m	1Gi	This buffer should be considered per Tenant
+Persistent Storage - This is the Persistent Storage Quota requirement for the application
+Administrator Email - Provide the email id of the administrator
+Tags - Reference Tag for Tenant Request
+3. Requestor will then receive an email notification from Global IT Cloud Services with the On-board Request and Tenant provision status.
+
+4. Once the Requestor is notified with Tenant Provision confirmation, please validate the on-board request by logging into the HPE ECP Dashboard
+
+
+
+For any other information on HPE ECP On-boarding Process, please contact the CaaS Platform Team below.
+
+Thiru Palanichamy (thiruppathy.palanichamy@hpe.com)
+Pavan Vardaman (pavan.vardaman@hpe.com)
+Goutam Mantri (goutam.mantri@hpe.com)
+Lasya Akula (lasya.akula@hpe.com)
+HPE IT ECP Environments:
+HPE ECP Lab
+
+Use the ECP Lab environment in Colo2 with bare minimum cpu, memory, storage and single container instance to evaluate your Kubernetes POC use case. Once the POC is complete, the user tenant will be cleaned to retain compute resources in this shared platform.
+
+ECP Version: 5.3.5
+Kubernetes Version: 1.20.2
+Istio Version: 1.9.0
+HPE ECP ITG
+
+HPE ECP ITG environmnet in CoLo2 is for hosting NON-PROD workloads such as DEV/ITG/UAT applications.
+
+ECP Version: 5.2
+Kubernetes Version: 1.18.6
+Istio Version: 1.7.1
+HPE ECP PROD
+
+HPE ECP PROD environmnet in Colo1 is the primary environment for hosting Production workloads.
+
+ECP Version: 5.2
+Kubernetes Version: 1.18.6
+Istio Version: 1.7.1
+HPE ECP DR
+
+HPE ECP DR environmnet in Colo2 is for hosting Production DR workloads. Configure a GLB between the HPE ECP PROD and HPE ECP DR to redirect the requests in case of a disaster.
+
+ECP Version: 5.2
+Kubernetes Version: 1.18.6
+Istio Version: 1.7.1
+HPE Ezmeral Container Platform Product Link
+
+Service Account login with SSO enabled on HPE-ECP
+NOTE: Please let us know if you haven't requested serviceaccount for your ECP-Tenants in an email to hoh-caasops@hpe.com to use it in your CI/CD pipeline to deploy your applications into HPE-ECP Clusters as you won't be able to use your personal account to deploy the applications through CI/CD pipeline for any SAML/SSO enabled IT ECP environments.
+
+When the SSO is enabled on IT HPE-ECP environment, the application team member can login into the HPE-ECP dashboard with the service-account using the below URL if needed:
+
+<ECP-Dashboard_URL>/bdswebui/login?local
+
+Example: For Lab Cluster: https://dashboard-ecp-lab.its.hpecorp.net/bdswebui/login?local
+
+
+
+NOTE: Users need to use windows machine to perform kubectl hpecp refresh <Dashboard_URL> to create a session when the SSO is enabled for the given HPE ECP cluster. HPE ECP product team recommends users to use Service-Provider initiated flow. This flow does require the authentication request to be signed, hence product team recommends to use a windows machine to perform kubectl hpecp refresh <Dashboard_URL>.
+
+Example: For Lab cluster: kubectl hpecp refresh dashboard-ecp-lab.its.hpecorp.net
+
+If the user wish to use a linux machine to login to HPE ECP with kubectl, it is required to download the kubeconfig from the ECP dashboard whenever the session expires.
+
+Connectivity(NCR/NCS/Firewall) reference from/to IT HPE ECP Environments:
+For Inbound traffic to HPE ECP Platform, please open the connection for External Loadbalancer VIP. Here are the VIP DNS for the HPE ECP Environments and use the network component name "HOH-Cloud zone".
+ecp-istio-lab.dc02.its.hpecorp.net  (F5 - LTM VIP for HPE ECP Lab Colo2 - 16.228.255.154)
+istio-ecp-itg.dc02.its.hpecorp.net  (F5 - LTM VIP for HPE ECP ITG Colo2 - 16.228.18.99)
+istio-ecp.dc01.its.hpecorp.net      (F5 - LTM VIP for HPE ECP PROD Colo1 - 16.230.18.98)
+istio-ecp.dc02.its.hpecorp.net      (F5 - LTM VIP for HPE ECP PROD-DR Colo2 - 16.228.18.100)
+For Outbound traffic from HPE ECP Platform, please open the connection for Kubernetes Worker nodes. Here are the Network Objects that your team can refer in respective environment application's NCR/NCS and use the network component name "HOH-Cloud zone"
+CoLo2-Lab-ECP-K8s-Multitenant-Hosts (for HPE ECP - Lab Colo2)
+CoLo2-ITG-ECP-K8s-Multitenant-Hosts (for HPE ECP - ITG Colo2)
+CoLo1-PRD-ECP-K8s-Multitenant-Hosts (for HPE ECP - PROD Colo1)
+CoLo2-DR-ECP-K8s-Multitenant-Hosts  (for HPE ECP - PROD-DR Colo2)
+Creating a DNS entry for application:
+Please use the below VIP DNS entry while requesting an alias DNS entry for applications on HPE ECP Kubernetes platform.
+
+Replace <app-name>-dev.dc02.its.hpecorp.net with the appropriate alias value for your application.
+
+Example:
+
+For HPE ECP - Lab Colo2:
+<app-name>-lab.dc02.its.hpecorp.net --> ecp-istio-lab.dc02.its.hpecorp.net
+
+For HPE ECP - ITG Colo2:
+<app-name>-itg.dc02.its.hpecorp.net --> istio-ecp-itg.dc02.its.hpecorp.net
+
+For HPE ECP - PROD Colo1:
+<app-name>.dc01.its.hpecorp.net --> istio-ecp.dc01.its.hpecorp.net
+
+For HPE ECP - PROD-DR Colo2:
+<app-name>.dc02.its.hpecorp.net --> istio-ecp.dc02.its.hpecorp.net
+Configuring GLB for HPE IT Ezmeral Container Platform for PROD/DR
+Accessing the HPE ECP environment dashboard:
+Go to HPE ECP Dashboard
+
+Login with SAML/SSO
+
+Install kubectl and HPE ECP plugin for Windows and Linux environment:
+kubectl is a command line tool that is configured to communicate with a kubernetes cluster and kubectl-hpecp binary is a kubectl plugin that allows to communicate with an ECP Cluster.
+
+Please follow the instructions below to install these plugins from the ECP Dashboard screen.
+
+Installing Kubectl before connecting to the Kubernetes cluster:
+For Linux:
+
+Download the kubectl binary from the HPE ECP Dashboard. Navigate to Dashboard > Click on Download Kubectl dropdown > Click on Download for Linux
+
+
+
+Make the kubectl binary executable: $ chmod +x ./kubectl
+
+Move the binary in to your PATH: $ sudo mv ./kubectl /usr/local/bin/kubectl
+
+Verify the installation: $ kubectl version --client
+
+For Windows:
+
+Download the kubectl binary from the HPE ECP Dashboard. Navigate to Dashboard > Click on Download Kubectl dropdown > Click on Download for Windows
+
+
+
+Add the binary in to your PATH
+
+Validate the installation: $ kubectl version --client
+
+For other operating systems please refer the official documentation here
+Installing HPE Kubectl Plugin before connecting to the Kubernetes cluster:
+For Linux:
+
+Download the HPE kubectl binary from the HPE ECP Dashboard. Navigate to Dashboard > Click on Download HPE kubectl Plugin dropdown > Click on Download for Linux
+
+
+
+Make the HPE kubectl binary executable: $ chmod +x ./kubectl-hpecp
+
+Move the binary in to your PATH: $ sudo mv ./kubectl-hpecp /usr/local/bin/kubectl-hpecp
+
+Verify the installation: $ kubectl hpecp version
+
+For Windows:
+
+Download the HPE kubectl binary from the HPE ECP Dashboard. Navigate to Dashboard > Click on Download HPE kubectl Plugin dropdown > Click on Download for Windows
+
+
+
+Add the binary in to your PATH
+
+Validate the installation: $ kubectl hpecp version
+
+Please refer this kubectl command line reference document and the kubectl cheatsheet prior to any application deployments.
+Connecting to the tenant using kubectl:
+kubeconfig is a file that is used to configure access to the Kubernetes cluster. This configuration file describes the cluster, user and context defined inorder to access the kubernets cluster tenant.
+
+Steps to connect to a tenant using kubectl:
+On the HPE ECP Dashboard, navigate to Dashboard > Click on Download Kubeconfig
+
+
+
+Set the KUBECONFIG environment variable
+
+By default, kubectl looks for a file named config in the $HOME/.kube directory. You can specify other kubeconfig files by setting the KUBECONFIG environment variable.
+If the KUBECONFIG environment variable does not exist, kubectl uses the default kubeconfig file - $HOME/.kube/config
+On Linux Machine: Set the environment using: $ export KUBECONFIG=~/path/to/mytenant_kubeconfig
+On Windows Machine: Set the environment using: $ set KUBECONFIG="path\to\mytenant_kubeconfig"
+Validate the configuration set using: $ kubectl config view
+
+You can now utilize the kubectl utility to access your tenant/cluster
+
+  $ kubectl version                     # kubectl now shows both the server and client information
+  $ kubectl get pods -n <my-namespace>  # Displays all the pods running under the provided namespace
+NOTE:
+If the --hpecp-token expires with respect to the --hpecp-token-expiry in KubeConfig, any kubectl command throws the below error while connecting to the tenant.
+
+error: You must be logged in to the server (Unauthorized)
+To refresh the session token:
+
+Option 1: Download a new KubeConfig (which has a new --hpecp-token), set the KUBECONFIG environment variable as mentioned in this step, and try the kubectl commands again
+
+Option 2: Use the command kubectl hpecp refresh dashboard-ecp-lab.its.hpecorp.net to refresh the session token and provide the HPE ECP Dashboard username and password when prompted. For more information see here
+
+PS: Users need to use windows machine to perform kubectl hpecp refresh <Dashboard_URL>. HPE ECP product team recommends users to use Service-Provider initiated flow. This flow does require the authentication request to be signed, hence product team recommends to use a windows machine to perform kubectl hpecp refresh <Dashboard_URL>.
+
+If the user wish to use a linux machine to login to HPE ECP with kubectl, it is required to download the kubeconfig from the ECP dashboard whenever the session expires.
+
+Sample Deployment and Service template to deploy into HPE ECP Kubernetes Cluster/Tenant:
+Deploy your first application on HPE ECP:
+Create a configuration file for the application deployment - helloworld-app.yaml. For example, the below configuration file deploys a simple helloworld application on port 8080 and exposes it using a NodePort through a service.
+# Defining a Service to expose the helloworld application through NodePort
+apiVersion: v1 
+kind: Service
+metadata:
+  name: helloworld-svc
+  labels:
+    run: helloworld-example
+spec:
+  ports:
+  - port: 8080
+    name: tcp-helloworld
+    protocol: TCP
+    targetPort: 8080
+  type: NodePort
+  selector:
+    run: helloworld-example
+---
+# Defining a Deployment for helloworld application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: helloworld-example
+  template:
+    metadata:
+      labels:
+        run: helloworld-example
+    spec:
+      containers:
+      - name: helloworld
+        image: gcr.io/google-samples/node-hello:1.0
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "100m"
+          limits:
+            memory: "100Mi"
+            cpu: "100m"          
+Deploy the application in your tenant using the above configuration file:
+kubectl apply -f helloworld-app.yaml -n <my-namespace>
+Please refer this documentation for editing, describing, deleting the deployment and service.
+Liveness and Readiness Probes:
+In Kubernetes, Liveness and Readiness Probes are used to control the health of an application using the attributes mentioned here.
+
+Kubelet uses a liveness probe to know when to restart a container. If a container is unresponsive - perhaps the application is deadlocked due to a multi-threading defect, restarting the container can make the application more available
+Kubelet uses a readiness probe to decide when the container is available for accepting traffic. A pod is considered ready when all of its containers are ready
+A very common issue observed with liveness probes is that pod often ran into multiple restarts with the error: Liveness probe failed: ... : net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers). As the error clearly suggests, the request from kubelet timed out while waiting for a response from the application.
+
+In this case, increasing the initialDelaySeconds and timeoutSeconds to the application's requirement seems to have addressed the issue.
+
+Deploy an application with persistent storage:
+By default, HPE ECP is configured with Dynamic volume provisioning which allows storage volumes to be created on-demand. This automatically provisions storage when it is requested by users through the app definition file, example helloworld-app.yaml
+
+Users requests dynamically provisioned storage by including a PersistentVolumeClaim object in the app definition file as shown below.
+
+Example:
+
+# Defining PersistentVolumeClaim for helloworld application
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: helloworld-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---      
+# Defining a Service to expose the helloworld application through NodePort
+apiVersion: v1 
+kind: Service
+metadata:
+  name: helloworld-svc
+  labels:
+    run: helloworld-example
+spec:
+  ports:
+  - port: 8080
+    name: tcp-helloworld
+    protocol: TCP
+    targetPort: 8080
+  type: NodePort
+  selector:
+    run: helloworld-example
+---
+# Defining a Deployment for helloworld application with Persistent Storage
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: helloworld-example
+  template:
+    metadata:
+      labels:
+        run: helloworld-example
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: helloworld
+        image: gcr.io/google-samples/node-hello:1.0
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - name: helloworld-pv
+          mountPath: /var/lib/myvol
+      volumes:  
+      - name: helloworld-pv
+        persistentVolumeClaim:
+          claimName: helloworld-pv-claim
+
+Horizontal Pod Autoscaler over Replicas to facilitate more load:
+Inorder to accommodate more load for an application, multiple instances of a pod can be defined by setting replicas in a deployment. Instead, setup a Horizontal Pod Autosaler for a deployment and set the conditions to dynamically autoscale by configuring a threshold limit for CPU utilization, Memory etc.
+
+For example, the below HPA configuration will increase and decrease the number of replicas of the deployment helloworld, to maintain an average CPU utilization of 80% and Memory utilization of 70% across all Pods.
+
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+ name: helloworld-hcp
+spec:
+ scaleTargetRef:
+   apiVersion: apps/v1
+   kind: Deployment
+   name: helloworld
+ minReplicas: 2
+ maxReplicas: 6
+ metrics:
+ - type: Resource
+   resource:
+     name: cpu
+     target:
+       type: Utilization
+       averageUtilization: 80     
+ - type: Resource
+   resource:
+     name: memory
+     target:
+       type: Utilization
+       averageUtilization: 70
+# Example to specify the directions for scaling up/down when the above cpu/memory threshold is met.   
+# .policies.type determines if the policy scales by a specific number of pods or a percentage of pods during each iteration. The default value is pods.
+# .policies.value determines the amount of scaling, either the number of pods or percentage of pods, during each iteration.
+# .policies.periodSeconds determines the length of a scaling iteration. The default value is 15 seconds.
+# .selectPolicy determines which policy to use first, if multiple policies are defined
+# Specify Max to use the policy that allows the highest amount of change, Min to use the policy that allows the lowest amount of change.
+# .stabilizationWindowSeconds determines the time period the HPA should look back at desired states. The default value is 0. 
+ behavior:
+   scaleDown:
+     stabilizationWindowSeconds: 300
+     policies:
+     - type: Pods           
+       value: 1             
+       periodSeconds: 60   
+     selectPolicy: Max      
+   scaleUp:
+     stabilizationWindowSeconds: 0
+     policies:
+     - type: Percent
+       value: 25
+       periodSeconds: 15
+     - type: Pods
+       value: 4
+       periodSeconds: 15
+     selectPolicy: Max
+Here are some reference documentation on HPA:
+
+Horizontal Pod Autoscaler Walkthrough
+Kubernetes API Reference Documentation
+Understanding Kubernetes Istio Ingress:
+Ingress exposes HTTP and HTTPS routes from outside the cluster to services within the cluster. Currently, Ingress HTTP traffic is restricted to within the respective datacenter network (Jumpbox) only. Traffic routing is controlled by rules defined on the Ingress resource.
+
+An Ingress may be configured to give Services externally-reachable URLs, load balance traffic, terminate SSL / TLS, and offer name based virtual hosting. An Ingress controller is responsible for fulfilling the Ingress, usually with a load balancer, though it may also configure your edge router or additional frontends to help handle the traffic.
+
+In order for the Ingress resource to work, the kubernetes cluster must have an ingress controller running. Currently, HPE ECP platform has Istio based ingress controller to controll ingress traffic across the HPE ECP Kuberenetes environments.
+
+Currently there is an external Load Balancer (F5 LTM) infront of Istio. By default, Istio internally uses a round-robin load balancing policy, where each service instance in the instance pool gets a request in turn. This can be specified in destination rules for requests to a particular service or service subset.
+
+To make the application accessible from outside of the kubernetes cluster, e.g., from a browser, a Gateway needs to be configured
+To define the set of route rules and to specify which service to call when a request is made to the application, a VirtualService needs to be configured
+Destination rules are applied after virtual service routing rules are evaluated, so they apply to the traffic’s “real” destination
+Accessing a single application endpoint through Istio:
+TLS Termination/Passthrough at gateway when an application is accessed can be configured using the tls.mode server TLS setting in the gateway configuration.
+
+Example Configuration for TLS Termination at the Istio Gateway:
+Now that the example helloworld application is already up and running, configure a Gateway, VirtualService and DestinationRule using istio ingress as shown below:
+
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  generation: 1
+  name: helloworld-gateway
+spec:
+  selector:
+    istio: ingressgateway                       # Configuring app to use the istio ingress gateway
+  servers:
+  - hosts:
+    - app-dns           # Application DNS
+    port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE                       # Terminates the TLS at the Gateway
+      credentialName: helloworld-secret  # This is the Secret configured with application's Private Key and Certificate in istio-system namespace
+      minProtocolVersion: TLSV1_2
+      maxProtocolVersion: TLSV1_2
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  generation: 1
+  name: helloworld-vs
+spec:
+  gateways:
+  - helloworld-gateway
+  hosts:
+  - app-dns
+  http:
+  - route:
+    - destination:
+        host: helloworld-svc                    # Define the application's service name
+        port:
+          number: 8080
+        subset: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: helloworld-destinationrule
+spec:
+  host: helloworld-svc                          # Define the application's service name
+  subsets:
+    - name: v1
+      labels:
+        run: helloworld-example                 # Make sure this matches with the label defined for service
+Please note that the TLS Termination at the Istio Gateway requires the application certificates to be stored as secret in the istio-system namespace for the gateway to consume.
+
+In this case, please create the tls secret in your namespace and reach out to us on Slack to add them to the istio-system namespace.
+
+Example Configuration for TLS Passthrough at the Istio Gateway:
+Configuring the tls mode to PASSTHROUGH instructs the gateway to pass the ingress traffic AS IS, without terminating TLS.
+
+Create a kubernetes secret to hold the application certificates
+$ kubectl -n <namespace> create secret tls demo-app-certs --key /path/to/demo-app.key --cert /path/to/demo-app.crt
+Deploy application with the secret mounted
+$ kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app-svc
+  labels:
+    app: demo-app
+spec:
+  ports:
+  - port: 8080
+    name: tcp-demoapp
+    protocol: TCP
+    targetPort: 8080
+  type: NodePort
+  selector:
+    app: demo-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-app
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: demo-app-certs                       # Secret holding the application certificates                                
+      containers:
+      - name: application
+        image: hub.docker.hpecorp.net/caasonhpe/f5_demo_app:v1      # Application Image
+        args: ["--tls-cert=/run/secrets/secret-volume/tls.crt", "--tls-key=/run/secrets/secret-volume/tls.key"]     # Application defined TLS/SSL settings
+        volumeMounts:
+        - name: secret-volume                       
+          readOnly: true
+          mountPath: "/run/secrets/secret-volume"          # Mounting the secret to a desired path inside the pod
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+EOF
+Configure the ingress Gateway, Virtual Service and Destination Rules
+$ kubectl apply -f - <<EOF
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  generation: 1
+  name: demo-app-gateway
+  labels:
+    app: demo-app
+spec:
+  selector:
+    istio: ingressgateway                       # Configuring app to use the istio ingress gateway
+  servers:
+  - hosts:
+    - <app-dns>                                 # Application DNS
+    port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    tls:
+      mode: PASSTHROUGH                         # Configuring the tls mode to PASSTHROUGH 
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  generation: 1
+  name: demo-app-vs
+  labels:
+    app: demo-app
+spec:
+  gateways:
+  - demo-app-gateway
+  hosts:
+  - <app-dns>                                    # Application DNS
+  tls:
+  - match:
+    - port: 443
+      sniHosts:
+      - <app-dns>                               # Application DNS
+    route:                                      # Configure routes for traffic entering via the gateway
+    - destination:
+        host: demo-app-svc                      # Application's service name
+        port:
+          number: 8080
+        subset: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: demo-app-destinationrule
+  labels:
+    app: demo-app
+spec:
+  host: demo-app-svc                            # Application's service name
+  subsets:
+    - name: v1
+      labels:
+        app: demo-app
+EOF
+Accessing multiple applications using single endpoint through Istio:
+Below is an example to configure a virtual service to handle multiple services (helloworld and demo apps) in the same namespace using a single endpoint through Istio.
+
+The below VirtualService example routes requests to:
+
+helloworld service when the user access the endpoint - https://<app-name>.dc02.its.hpecorp.net/welcome
+demo service when the user access the endpoint - https://<app-name>.dc02.its.hpecorp.net/
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: demo-gateway
+spec:
+  selector:
+    istio: ingressgateway               # Configuring app to use the istio ingress gateway
+  servers:
+  - hosts:
+    - <app-dns>                         # App DNS    
+    port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: demo-secret  # This is the Secret configured with application's Private Key and Certificate in istio-system namespace
+      minProtocolVersion: TLSV1_2
+      maxProtocolVersion: TLSV1_2      
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: demo-vs
+spec:
+  gateways:
+  - demo-gateway
+  hosts:
+  - <app-dns>                         # App DNS
+  http:
+  - match:
+    - uri:
+        exact: /welcome
+    route:
+    - destination:
+        host: helloworld-svc            # routes the traffic to helloworld application when https://<app-name>.dc02.its.hpecorp.net/welcome is accessed
+        port:
+          number: 8080
+        subset: v2
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: demo-service              # routes the traffic to demo application when https://<app-name>.dc02.its.hpecorp.net/ is accessed
+        port:
+          number: 8080
+        subset: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: helloworld-destinationrule
+spec:
+  host: helloworld-svc
+  subsets:
+  - name: v2
+    labels:
+      run: helloworld-example
+---      
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: demo-destinationrule
+spec:
+  host: demo-service
+  subsets:
+  - name: v1
+    labels:
+      app: demo
+Avoid multiple filter chains in virtual service with overlapping/duplicate matching rules:
+Istio’s traffic management model relies on the Envoy proxies that are deployed along with your services. All traffic that your mesh services send and receive is proxied through Envoy.
+
+In the current version of istio (v1.7.1), we noticed a bug where if an overlapping or duplicate match rule is defined in the virtual service, envoy proxy would not comeup until the buggy virtual service is removed.
+
+In this case the istio-ingressgateway will be down if the istio-ingressgateway pods in istio-system namespace restarts for any reason, hence all the sniHosts exposed using the istio ingress in the cluster will not be accessible.
+
+For example:
+
+Assuming there is an ingress gateway and a corresponding virtualservice defined for a service helloworld-svc with no destinationrule. For example, the virtualservice looks something like this:
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: helloworld-vs
+spec:
+  gateways:
+  - helloworld-gateway
+  hosts:
+  - "helloworld-itg.dc02.its.hpecorp.net"
+  tls:
+  - match:
+    - port: 443
+      sniHosts:
+      - helloworld-itg.dc02.its.hpecorp.net
+    route:
+    - destination:
+        host: helloworld-svc
+        port:
+          number: 8080
+There is also another virtualservice which routes the traffic for the same helloworld-svc to a different port, something like this:
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: helloworld-app-vs
+spec:
+  gateways:
+  - helloworld-gateway
+  hosts:
+  - "helloworld-app-itg.dc02.its.hpecorp.net"
+  tls:
+  - match:
+    - port: 443
+      sniHosts:
+      - helloworld-app-itg.dc02.its.hpecorp.net
+    route:
+    - destination:
+        host: helloworld-svc
+        port:
+          number: 9000
+While Istio lets you deploy both the virtual services and exposes it without any issue, if for any reason the istio-ingressgateway is restarted, without a defined subset values in virtualservice and no destinationrule this is identified by envoy proxy as a duplicate matching rule for the internal service helloworld-svc
+
+To avoid running into this issue, you should combine both the match routing rules in a single virtualservice and include a subset rule for each match filter and then define a destinationrule for each subset rule.
+
+The virtualservice would look something like this:
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: helloworld-vs
+spec:
+  gateways:
+  - helloworld-gateway
+  hosts:
+  - "helloworld-itg.dc02.its.hpecorp.net"
+  - "helloworld-app-itg.dc02.its.hpecorp.net"
+  tls:
+  - match:
+    - port: 443
+      sniHosts:
+      - helloworld-itg.dc02.its.hpecorp.net
+    route:
+    - destination:
+        host: helloworld-svc
+        port:
+          number: 8080
+        subset: v1
+  - match:
+    - port: 443
+      sniHosts:
+      - helloworld-app-itg.dc02.its.hpecorp.net
+    route:
+    - destination:
+        host: helloworld-svc
+        port:
+          number: 9000            
+        subset: v2
+Alternatively, you can also have two virtualservices with the subset rule included.
+
+And the destinationrule would look like this:
+
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: helloworld-destinationrule
+spec:
+  host: helloworld-svc
+  subsets:
+  - name: v1
+    labels:
+      run: helloworld-example
+---      
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: helloworld-app-destinationrule
+spec:
+  host: helloworld-svc
+  subsets:
+  - name: v2
+    labels:
+      run: helloworld-example
+Example Application using Vault to store/retrieve Application's TLS Certs
+In an example mentioned here the application tls certs are added as kubernetes secrets and then they are mounted into the application container as a volume.
+
+For Applications that are required to store such tls certs in Vault, and retrieve them during the container startup, here is an example. Please follow through the below instructions to achieve this.
+
+1. Store the TLS certs as secrets in vault. For more examples see here
+
+2. During the docker image build for the application:
+
+Define an entrypoint that will allow the container to basically log into Vault using Vault CLI, retrieve the secrets added in the previous step and store it inside the container at a desired file path (/run/secrets/) during the container startup.
+
+The below steps in the entrypoint.sh would do this job. Note that the $VAULT_GITHUB_TOKEN and $VAULT_APPLICATION_PATH attributes that are required for retrieving the secrets will be added in the following steps as environment variables in the ECP deployment.yaml configuration.
+
+Example entrypoint.sh script
+
+#!/bin/sh
+.
+.
+.
+if [ -n "$VAULT_GITHUB_TOKEN" ]; then
+  mkdir -p /run/secrets
+  vault auth -method=github token=$VAULT_GITHUB_TOKEN
+  vault read -field=sslcrt $VAULT_APPLICATION_PATH > /run/secrets/app.crt
+  vault read -field=sslkey $VAULT_APPLICATION_PATH > /run/secrets/app.key
+fi
+.
+.
+.
+Next, ensure Vault is installed and the above entrypoint script executes as the default command during the container startup. This will be defined in the Dockerfile.
+
+Example Dockerfile:
+
+.
+.
+.
+# Install Vault
+RUN curl -L "https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip" -o /tmp/vault.zip && \
+    unzip /tmp/vault.zip -d /usr/local/bin && \
+    rm -f /tmp/vault.zip
+
+
+# Copy entrypoint into the container
+COPY ./entrypoint.sh /somedir/entrypoint.sh
+
+
+# Define default command for executing the container
+CMD [ "/bin/sh", "/somedir/entrypoint.sh" ]
+3. Add the Github Personal Access Token as a kubernetes secret under your namespace. This is required for vault to validate your access when you run vault auth -method=github token=$VAULT_GITHUB_TOKEN in the entrypoint.sh
+
+Add the secret under your namespace by running:
+
+kubectl create secret generic <secret-name-here> --from-literal=VAULT_GITHUB_TOKEN=<GitHub-PAT-here> -n <namespace-here>
+
+4. And finally, in the application deployment.yaml configuration for ECP, define the environment variables that are required for retrieving the secrets from vault.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+  namespace: caasonhpe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-app
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      containers:
+      - name: application
+        image: hub.docker.hpecorp.net/caasonhpe/f5_demo_app:v1
+        env:
+        - name: HTTPS_PROXY
+          value: http://proxy.its.hpecorp.net:8080
+        - name: HTTP_PROXY
+          value: http://proxy.its.hpecorp.net:8080
+        - name: https_proxy
+          value: http://proxy.its.hpecorp.net:8080
+        - name: http_proxy
+          value: http://proxy.its.hpecorp.net:8080
+        - name: no_proxy
+          value: localhost,127.0.0.1,.hpe.com,.hpecorp.net,.svc        
+        - name: VAULT_ADDR
+          value: https://vault.docker.hpecorp.net
+        - name: VAULT_APPLICATION_PATH
+          value: secret/caasonhpe/demo-app/development
+        - name: VAULT_GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: VAULT_GITHUB_TOKEN
+              name: demo-app-token         # This is the kubernetes secret holding GitHub PAT in this example
+              optional: false
+        args: ["--tls-cert=/run/secrets/app.crt", "--tls-key=/run/secrets/app.key"]
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+Please refer Vault Wiki for more information.
+
+Spark Operator on ECP:
+HPE Ezmeral Container Platform provides Spark Operator which controls the workflow of Spark Applications by creating a driver pod. A Spark driver pod launches a set of Spark executors that execute the job you want to run.
+
+Currently Spark operator is enabled on all the HPE IT ECP environments. For more information on Spark Applications on ECP, please refer here.
+
+NOTE:
+
+ECP Product team recommended to move away from Kubedirector due to issues with its integration with underlying MapR storage, and instead make use of Spark Operator, a long term supported Spark solution in ECP.
+ECP Product team also recommended to disable istio sidecar injection on tenants that run Spark Applications while they work on a bug related to configurations in the istio add-on.
+For configuring Jupyter Notebook server for Spark Applications, please refer this example JupyterHub's documentation.
+HPE JenkinsHub for CI/CD:
+To configure CI/CD for your deployments to HPE ECP environment, see this JenkinsHub wiki page for a Jenkinsfile reference template.
+LENS as Kubernetes IDE for HPE ECP:
+Lens is one of the most powerful Open Source Kubernetes IDEs that allows the user to visualize a Kubernetes cluster on a Dashboard and explore day to day kubectl commands and activities.
+
+To install Lens IDE, please refer the documentation here
+
+Connect to your namespace on Lens IDE:
+Lens IDE allows you to select the contexts that you are part of, using the kubeconfig file. Each Cluster on Lens is represented as a context.
+
+Steps to add a Cluster:
+
+Download the Kubeconfig from the HPE ECP dashboard
+On Lens, Click on the Add Cluster button in the left side menu
+Browse or provide the path to the downloaded Kubeconfig file or Paste the Kubeconfig content in the text box
+Select the contexts that you would like to visualize
+
+
+Note:
+
+For Lens to pickup the kubectl and HPE kubectl plugin executing binaries, please make sure to add them to your PATH before adding the cluster
+If an individual user is part of more than one Tenant on ECP, the Kubeconfig will have more than one context. On Lens, Each selected context will be added as a separate cluster item in the left-side menu to allow users to operate easily on multiple namespaces/tenants
+You can also edit the Cluster settings like Cluster Display Name, Manage what metrics to view on the UI, Default working directory, etc anytime
+Navigation on the UI:
+Workloads:
+
+The Workloads drop down on Lens provides an overview of Pods, Deployments, Stateful Sets, Replica Sets, Jobs and Cron Jobs. Click on the Deployment/Pod to view its description. It also allows user to edit and scale the objects up and down.
+
+
+
+View pod logs:
+
+To view the logs of an active pod, go to Workloads > Pods > Click on the pod > Click on Logs icon > Select the container
+
+This will open up a terminal at the bottom with container logs.
+
+
+
+Exec into a pod:
+
+To exec into a pod, go to Workloads > Pods > Click on the pod > Click on Pod Shell icon > Select the container
+
+
+
+This will open up a terminal at the bottom.
+
+
+
+View Istio objects:
+
+Istio Objects like Gateway, VirtualService and Destinationrules can be found under Custom Resources > networking.istio.io
+
+
+
+View kubernetes events:
+
+Kubernetes events within the namespace can be viewed under Events.
+
+
+
+What if the session token in the Kubeconfig expires when using Lens?
+
+If the --hpecp-token in the Kubeconfig expires, you will notice the below error on the Lens UI.
+
+
+
+In this case please refresh the session token to reconnect to the contexts. To refresh the session token see here
+
+Reporting Issues:
+Use the #ask-it-kubernetes channel on Slack to report any problems or to post your concerns/comments regarding HPE ECP - COLO Environment's. Make sure to tag us in your post using @it-cloudservices-team
+
+HPE IT ECP Recordings:
+HPEIT-ECP-Architecture Walkthrough
+
+HPEIT-ECP-NewRelic Kubernetes Monitoring and K8sLens Walkthrough/Demo
