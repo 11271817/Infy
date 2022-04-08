@@ -1,0 +1,22 @@
+Onboarding Process
+Check out onboarding information here.
+
+Audit Dashboards
+Kibana all users Dashboard
+Kibana Root(Admin) Dashboard
+Support team availability
+Our service is supported 24/7. We can be reached on Slack at #ask-it-vault
+
+Service updates/upgrades
+Downtime for service upgrades when required will be pre-announced in #ask-it-vault. In general our release process will take an A/B deployment approach for upgrades/updates, and all efforts to minimize downtime will be made.
+
+Data Backup
+Currently Vault secrets are backed up every day at 3 PM CST and retains last 10 backups. For more details on backups please go to the backups page.
+
+Communication
+Please review the following links for communications channels we will use to help users with our service.
+
+Find us on #ask-it-vault Slack channel.
+Find us on GitHub Enterprise.
+Reporting Issues
+Tell us about it on Slack at ask-it-vault Channel.
