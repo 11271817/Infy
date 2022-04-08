@@ -1,0 +1,153 @@
+Getting Started
+Sasikanth Sadasivuni-Infosys edited this page 9 days ago · 28 revisions
+Join / Register
+NOTE: All configurations can be done to all repositories at once if the user do them on the Organization settings tab instead of per repository.
+
+Add hpe4it-jenkins service account user with write access to your repository
+Add your Jenkins pipeline groovy to hpe4it-jenkins-jobs repository
+Configure the webhook for your GitHub repository for builds to trigger
+:pencil2: Create a Jenkinsfile at the root of your GitHub repository
+1. Add hpe4it-jenkins service account
+In your GitHub repository, add user hpe4it-jenkins as a contributor. This is a service account, which needs to have write access to the repository so that it can provide commit statuses back.
+
+Adding hpe4it-jenkins user
+
+2. Register your job into hpe4it-jenkins-jobs
+(2.1) Register your GitHub Organization
+Note: Please follow step 2.2 in case your repo is part of the HPE Organization.
+You will need to create a pull request for the Jenkins job you want to add:
+
+Fork hpe4it-jenkins-jobs repository
+Go to job_dsl directory and create a new directory with the name of your GitHub Organization.
+Then create a new file like my_org_name.groovy and copy the content from the template below. In case your Org has '-'(hyphen) in it's name, please use '_'(underscore) instead of '-'(hyphen) in the filename.
+// EPRID: INCLUDE THE EPRID OF YOUR APPLICATION.
+// Application Owner: ADD THE NAME AND EMAIL OF THE OWNER OF YOUR APPLICATION (MANDATORY).
+organizationFolder('MY-ORGANIZATION-NAME') // Add your GitHub Organization name
+    authorization {
+            permissionAll('oscar-romero')  // Example for all permissions for a user.
+            permission('hudson.model.Item.Read', 'anonymous') // Anonymous read permissions. Please remove this line if you don't wish anonymous views.
+            permission('hudson.model.Item.Build', 'edward-raigosa') // Example for only build permissions for a user.
+         }
+    organizations {
+        github {
+            apiUri('https://github.hpe.com/api/v3')
+            checkoutCredentialsId('github-creds')
+            includes('*') // Includes all the branches to build
+            repoOwner('MY-ORGANIZATION-NAME') // Add your GitHub Organization name
+            scanCredentialsId('github-creds')
+            pattern('.*') // Example for including all repos
+        }
+    }
+    orphanedItemStrategy {
+        discardOldItems {
+            numToKeep(10)
+        }
+    }
+}
+This groovy file describes, with code, the creation of your job in Jenkins. You will add one file per GitHub Organization.
+
+Update organizationFolder and repoOwner with the name of your GitHub ORG
+If you only want to build an specific repo modify pattern like pattern('repo_name1|repo_name2|repo_name3')
+Update permissions for your job on authorization, make sure you set github usernames (not hpe email).
+Submit the Pull Request
+For the complete reference on this file go to -> JobDSL reference docs
+
+(2.2) Register your GitHub Repositories
+You will need to create a pull request for the Jenkins job you want to add:
+
+Fork hpe4it-jenkins-jobs repository
+Go to job_dsl directory and create a new directory with the name of your GitHub Team.
+Then create a new file like my_app_team_name.groovy and copy the content from the template below. In case your App has '-'(hyphen) in it's name, please use '_'(underscore) instead of '-'(hyphen) in the filename.
+NOTE:
+
+Before creating a new groovy file for your App team, please ensure to check that the job_dsl folder doesn't already have it. If the file already exists, please update the file by appending your repo to it.
+Please check if a folder named your teamname that you will be using in below template is already present in job_dsl folder, if present please append _folder to your teamname i.e., teamname_folder.
+// EPRID: INCLUDE THE EPRID OF YOUR APPLICATION.
+// Application Owner: ADD THE NAME AND EMAIL OF THE OWNER OF YOUR APPLICATION (MANDATORY).
+def teamname='CaaSonHPE' // Add your team name here
+
+folder(teamname) {
+    displayName(teamname)
+    description('About my team or the repos in the folder')
+    authorization {
+        permissionAll('naveen-rajan-infosys') // Example for all permissions for a user.
+        permission('hudson.model.Item.Discover', 'anonymous') // Anonymous read permissions. Please remove this line if you don't wish anonymous views.
+        permission('hudson.model.Item.Create', 'goutam-mantri') // Example for only create permissions for a user.
+    }
+}
+
+multibranchPipelineJob("${teamname}/my_repo_1") { // Add your repo name
+    authorization {
+        permissionAll('naveen-rajan-infosys') // Example for all permissions for a user.
+        permission('hudson.model.Item.Read', 'anonymous') // Anonymous read permissions. Please remove this line if you don't wish anonymous views.
+        permission('hudson.model.Item.Build', 'goutam-mantri') // Example for only build permissions for a user.
+    }
+    branchSources {
+        github {
+            id("${teamname}_my_repo_1") // provide an unique ID
+            apiUri('https://github.hpe.com/api/v3')
+            checkoutCredentialsId('github-creds')
+            includes('*') // Includes all the branches to build
+            repoOwner('hpe') // Name of Organization
+            repository('my_repo_1') // Name of your repo in the above Organization
+            scanCredentialsId('github-creds')
+        }
+    }
+    orphanedItemStrategy {
+        discardOldItems {
+            numToKeep(10)
+        }
+    }
+}
+
+multibranchPipelineJob("${teamname}/my_repo_2") { // Add your repo name
+    authorization {
+        permissionAll('naveen-rajan-infosys') // Example for all permissions for a user.
+        permission('hudson.model.Item.Read', 'anonymous') // Anonymous read permissions. Please remove this line if you don't wish anonymous views.
+        permission('hudson.model.Item.Build', 'goutam-mantri') // Example for only build permissions for a user.
+    }
+    branchSources {
+        github {
+            id("${teamname}_my_repo_2") // provide an unique ID
+            apiUri('https://github.hpe.com/api/v3')
+            checkoutCredentialsId('github-creds')
+            includes('master dev') // Include only master & dev branches to be scanned
+            repoOwner('hpe') // Name of Organization
+            repository('my_repo_2') // Name of your repo in the above Organization
+            scanCredentialsId('github-creds')
+        }
+    }
+    orphanedItemStrategy {
+        discardOldItems {
+            numToKeep(10)
+        }
+    }
+}
+This groovy file describes, with code, the creation of your job in Jenkins. You will add one file per GitHub Team and one multibranchPipelineJob(){...} block per repo.
+
+Update teamname and repoOwner with the name of your GitHub Team and ORG name respectively.
+If you only want to build specific branch(es) modify includes(*) like includes('master dev')
+Update permissions for your job on authorization, make sure you set github usernames (not hpe email).
+Submit the Pull Request
+For the complete reference on this file go to -> JobDSL reference docs
+
+Note: if you need to set some specific permission you can see the list of available permissions in here. permissions
+
+3. Configure Webhook for Push & Pull Requests event into branches
+Go to the Settings tab in your repository
+Hit on Hooks Option
+Hit on Add Webhook
+In the payload URL set this value:
+https://jenkins.docker.hpecorp.net/github-webhook/
+In the Content type set:
+application/x-www-form-urlcoded
+Choose "Enable SSL Verification"
+From the trigger events options hit on:
+Send me everything
+Then save it.
+4. :pencil2: Create Jenkinsfile
+The Jenkinsfile contains the steps of the Jenkins pipeline. you can use these default template or build your own.
+
+Note: Please note that any Github requests have to be authenticated now, please refer this for more information.
+
+Done, have a :coffee: and be happy to save power and CO2 :evergreen_tree::deciduous_tree: by leveraging shared resources!
