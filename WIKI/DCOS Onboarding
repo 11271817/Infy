@@ -1,0 +1,98 @@
+This is a repository to manage teams and on-boarding to DC/OS on CoLo1 and CoLo2.
+Steps to onboard new teams, all steps are required
+Fork this repo https://github.hpe.com/CaaSonHPE/DCOS-Onboarding
+On your fork create a new yml file at: /teams folder
+If you are requesting for access on DC/OS-ITG --> create the yml file under ITG folder
+If you are requesting for access on DC/OS-PRO --> create the yml file under PRO folder
+Please add EPRID to yml file as it is mandatory to approve the PR. Without EPRID PR will not be approved and merged.
+Submit a Github Pull Request
+Once the Github Pull Request is raised please tag HPE-IT Operations Lead for your Application on the comments sections to get approval for on-boarding requested users in Production environment.
+Once the Pull Request is approved the team will be created in DC/OS.
+Steps to onboard new user to existing team, all steps are required
+Fork this repo https://github.hpe.com/CaaSonHPE/DCOS-Onboarding
+On your fork, go to /teams folder and update the members list in your team's yml file with the new user
+If you are adding a new user on DC/OS-ITG --> update the team's yml file under ITG folder
+If you are adding a new user on DC/OS-PRO --> update the team's yml file under PRO folder
+Submit a Github Pull Request
+Once the Pull Request is approved the new user will be added to your team in DC/OS.
+Notes:
+
+As we do not have a seperate dev DC/OS cluster, a dev folder is added in the DC/OS-ITG cluster along with the itg folder. If your application requires custom folders to deploy your applications, please provide your folder names in the yaml file instead of dev and itg.
+
+Once the Github Pull Request is raised please tag HPE-IT Operations Lead for your Application on the comments sections to get approval for on-boarding requested users in Production environment.
+
+All the requested groups for DC/OS ITG and PRO will be created on both CoLo1 and CoLo2 DC/OS instances.
+
+Please use a valid HPE email ID in the yaml file to request access for DC/OS.
+
+Emails will be sent with the credentials to the IDs mentioned in the yaml file for both CoLo1 and CoLo2.
+
+Pull request approvers
+
+Thiru Palanichamy (thiruppathy.palanichamy@hpe.com)
+Pavan Vardaman (pavan.vardaman@hpe.com)
+Lasya Akula (lasya.akula@hpe.com)
+Goutam Mantri (goutam.mantri@hpe.com)
+dcos-team.yaml Example for ITG:
+EPRID: "Please enter your application EPRID here to deploy your container workloads into HOH-CoLos"  
+
+applicationOwner: "joe@hpe.com"  
+
+groupDescription: "description of group"
+
+team: dcos-team
+
+members:
+- joe@hpe.com 
+- john@hpe.com
+- nick@hpe.com
+
+permissions:
+- "dcos:adminrouter:ops:slave" : full
+- "dcos:adminrouter:ops:mesos" : full
+- "dcos:adminrouter:service:marathon" : full
+- "dcos:service:marathon:marathon:services:/$TEAM_NAME/dev" : full
+- "dcos:service:marathon:marathon:services:/$TEAM_NAME/itg" : full
+dcos-team.yaml Example for PRO:
+EPRID: "Please enter your application EPRID here to deploy your container workloads into HOH-CoLos"  
+
+applicationOwner: "joe@hpe.com"
+
+groupDescription: "description of  group"
+
+team: dcos-team
+
+members:
+- joe@hpe.com 
+- john@hpe.com
+- nick@hpe.com
+
+permissions:
+- "dcos:adminrouter:ops:slave" : full
+- "dcos:adminrouter:ops:mesos" : full
+- "dcos:adminrouter:service:marathon" : full  
+- "dcos:service:marathon:marathon:services:/$TEAM_NAME" : full
+Rules for yaml file
+Please add EPRID to yml file as it is mandatory to approve the PR. Without EPRID PR's will not be approved and merged.
+File name should match team property, example: dcos-team.yaml and team: dcos-team.
+groupDescription is required and should have atleast one line.
+members is required and should include at least one user.
+File extension should be yaml or yml.
+File name and its content are case sentitive, please make sure to use only lowercase letters.
+Permissions are default for all users.
+Replace $TEAM_NAME with the name of the group in Permissions.
+Please make sure your team has both ITG and DEV folder (or the custom folders) permissions added in the yaml file.
+For Production, please make sure that you do not use dev/itg/prod folders.
+It is the PR requester's or the Team Lead's responsibility to keep the team-members list up to date. Any inactive users are required to be removed immediately by raising a PR with the updated list of users.
+Please raise separate Pull requests for each environment i.e., one for ITG and another for Production
+If group needs permissions to access other services See here...
+NOTE:
+          * Make sure in permissions the resourceid(rid) and action is in this format "<resourceid>" : <action>.              
+          * Do not add multiple actions to resource in this way
+              - "<resourceid>" : create, read, update, delete
+          * If you want to add mutiple actions for resources then add resource and action each time. For example
+              - "<resourceid>" : create
+              - "<resourceid>" : read
+              - "<resourceid>" : update
+              - "<resourceid>" : delete
+          * Permission can only be added to groups but not to users.
