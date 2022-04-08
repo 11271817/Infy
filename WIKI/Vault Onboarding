@@ -1,0 +1,63 @@
+Onboarding
+Lasya Akula edited this page on Jul 30, 2021 · 24 revisions
+Onboarding
+Onboarding your organization to use Vault is very easy with these 3 simple steps:
+
+Create policies that grants access to Vault secret paths by submitting a PR here.
+If your app repos are part of HPE Org please create a policy with <my_team_name.hcl> under HPE folder and check HCD.hcl for reference where HCD is the team name.
+Once your policies are approved--> Manage your Vault teams using this github org's teams. The teams in this org are your Vault teams.
+Note: If you face trouble in accessing the teams org please add yourself or your team members to the org using self service portal . More info here...
+Generate a GitHub token for your service or for yourself to access Vault. Thats all...
+*Need help? Post a simple message on flowdock group and we will be happy to help.
+
+Generate a GitHub token for accessing Vault via Jenkins pipeline, UI, and/or CLI
+Generate an access token in GitHub
+
+Note: Recommend using an access token for a service account in your Jenkins pipeline
+See here for information on setting up a service account.
+See here for information on logging in to GitHub with the service account.
+Go to Settings > Developer settings > Personal access tokens (link)
+Click on Generate new token
+Make sure a minimum of read:org scope is selected
+Expected Permissions
+
+Make note of the token. You'll need to add it to your Jenkins pipeline path in Vault
+See example here
+Manage secrets with Vault
+Option 1: Use the UI
+
+See examples here
+Option 2: Use the CLI
+
+Be sure to set a VAULT_ADDR environment variable to https://vault.docker.hpecorp.net:443
+Add the location to which you placed the Vault executable into your PATH environment variable so you'll be able to access the client from anywhere.
+Validate your access by running vault auth -method=github token=YOUR_GITHUB_TOKEN
+For more on the Vault CLI, see documentation here
+See examples here
+Use Vault in your CI pipeline
+Ensure you have Vault installed in your Docker image
+Images using hub.docker.hpecorp.net/global-it-addison/addison-runtime:2.0.1 and above as a baseline (such as in the examples below) will have Vault installed already
+For other images, add the following (you might also need to install curl and unzip using the appropriate package manager for your image):
+RUN curl -L https://releases.hashicorp.com/vault/0.6.0/vault_0.6.0_linux_amd64.zip -o /tmp/vault.zip \
+    && unzip /tmp/vault.zip -d /usr/local/bin \
+    && rm -f tmp/vault.zip \
+Ensure the secrets you need during your Jenkins pipeline execution (referenced by the object resulting from a call to vaultGetSecrets()) are added to the correct location in Vault
+These secrets should be stored in either /secret/hpe4it-jenkins-ci/repo/{your-organization-name} or /secret/hpe4it-jenkins-ci/repo/{your-organization-name}/{your-repo-name}
+See the example here for how to configure these secrets
+Example applications using Vault
+Addison in DC/OS
+
+DC/OS onboarding information Note: Limited to invitation-only pilot
+SSL files are pulled at container start time in an entry script here
+The entry script is defined as the startup command for the Docker container in the Dockerfile here
+The environment variables used by Vault to pull from the right location are defined in the Jenkinsfile here
+The environment variable with the path to the secrets (VAULT_APPLICATION_PATH) is a combination of the static path set here (in the format of secret/github-organization/repository-name) and the dynamic result of the getDeploymentEnvironment function.
+So, if a pull request were opened against the repository, the bootstrap script would pull an SSL certificate configured with appropriate CN and SAN values for the development environment from the secret/Addison-Examples/addison-dcos/development/sslcert location in Vault
+Note: You'll have to create an entry at that location in Vault with the correct data
+Addison in Docker EE
+
+Docker EE onboarding information and access information
+The entry point script and startup command in the Dockerfile are the same as the DC/OS example above
+Environment variables should be exported in the Jenkinsfile as shown here
+Matching environment variables should be included in the compose.yaml file
+Example Application in HPE IT ECP using Vault
