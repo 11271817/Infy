@@ -1,0 +1,33 @@
+Please use below details for raising NCR/NCS requests to connect to Vault.
+
+Please refer to this wiki and below IPs for the request.
+
+Vault Production
+CoLo1:
+Source Region: AMS
+
+Source Network compartment: HoH - Chandler Cloud Zone
+
+Host Name	IP
+p1l00419.dc01.its.hpecorp.net	16.231.25.101
+p1l00420.dc01.its.hpecorp.net	16.231.25.102
+p1l00421.dc01.its.hpecorp.net	16.231.25.103
+p1l00422.dc01.its.hpecorp.net	16.231.25.104
+p1lg11705.dc01.its.hpecorp.net	10.74.36.24
+p1lg11707.dc01.its.hpecorp.net	10.74.36.25
+p1lg11709.dc01.its.hpecorp.net	10.74.36.26
+p1lg11711.dc01.its.hpecorp.net	10.74.36.27
+p1lg11712.dc01.its.hpecorp.net	10.74.36.28
+p1lg11713.dc01.its.hpecorp.net	10.74.36.29
+CoLo2:
+Source Region: AMS
+
+Source Network compartment: HoH - Carrollton Cloud Zone
+
+Host Name	IP
+r2lg11715.dc02.its.hpecorp.net	10.75.36.11
+r2lg11717.dc02.its.hpecorp.net	10.75.36.12
+r2lg11719.dc02.its.hpecorp.net	10.75.36.13
+r2lg11720.dc02.its.hpecorp.net	10.75.36.14
+r2lg11721.dc02.its.hpecorp.net	10.75.36.15
+r2lg11722.dc02.its.hpecorp.net	10.75.36.16
