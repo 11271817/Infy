@@ -1,0 +1,12 @@
+Description
+This project is intended to be an HPE internal alternative for CI/CD pipelines for your GitHub repository, similar to services like Travis CI, Circle CI, Drone IO, etc.
+
+Services
+Jenkins URL
+https://jenkins.docker.hpecorp.net
+Kibana Dashboard for jenkins builds
+https://kibana.jenkinshub.dc01.its.hpecorp.net
+Grafana dashboards
+https://grafana.jenkinshub.dc01.its.hpecorp.net
+Jenkins Architecture
+Diagram
