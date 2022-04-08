@@ -1,0 +1,33 @@
+Hello..!! You are HERE... it means your vault policies are created. If not, please submit a PR here.
+
+Vault uses Docker-in-Datacenter-VaultTeams org to manage your teams. The teams in this org are your Vault teams. When your policies PR is approved then your team(with same name as your Github Org name from the policy file) is created automatically in this org.
+
+Note: If you cannot see teams tab/or unable to add your teammate it means that you or your teammate is not a member of this org. In that case please FIRST use this self service portal to add yourself or add your teammate to the org. Once you are a member of that org, you can add/delete/manage your vault teams users using this orgs teams.
+
+*Need help? Post a simple message on flowdock group and we will be happy to help.
+
+Add members to your team
+Do you want to include members to your GitHub team Go to:
+
+https://github.hpe.com/orgs/Docker-in-Datacenter-VaultTeams/teams
+YOU did not find the user in the previous GitHub ORG, then use this application to add them:
+
+https://vault-teams-ui.its.hpecorp.net/
+
+
+ Pages 13
+Find a Page…
+Home
+Admin troubleshooting help
+API request example
+Audit Dashboard
+CLI Examples
+Generating Root Tokens Using Unseal Keys
+Manage Team Membership
+Onboarding
+Renewing SSL certificates for Vault on UCP
+Secrets Backups
+Secrets for JenkinsHub
+UI Examples
+Vault IP details for NCR NCS (Firewall)
+Clone this wiki locally
