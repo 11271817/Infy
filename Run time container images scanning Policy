@@ -1,0 +1,32 @@
+Run-time container images scanning policy in Production!
+CaaS Platform team have scheduled scanning jobs to scan all running containers image by leveraging Docker scanning service (Anchore) in D2iQ-DC/OS & Docker-EE-UCP Production CaaS environments.
+
+Application teams can pro-actively start leveraging the image scanning feature during application development/testing phases itself to address all vulnerabilities remediation by integrating the image scanning with jenkins build deployment process as described here.
+
+CaaS Platform team will only run scan of images that are running in the Production CaaS environments to minimize the duplication of image vulnerabilities notifications.
+
+Application team members will be getting their image scanning results through email notifications from ecphub-noreply@hpe.com for HPE IT Ezmeral Container Platform(ECP) and from dockerhub-noreply@hpe.com for Docker-EE-UCP.
+
+IMPORTANT NOTE: Application teams must be responsible to address their respective container image vulnerabilities remediation within 30 days of the first Scan result notification of their container image. Application teams must follow the HPE Cyber Security Policy for Software Developers section SD.02-04.e here.
+
+"Do not enter False Positives in to Issue Management."
+
+True Positive vulnerabilities that require time to remediate (over 30 days of the first Scan result notification of their container image), or on the very rare instance cannot be remediated and require an exception, must be entered into the Issue Management application – (will require L3 approval). To create an Issue Management ticket visit here.
+
+For False Positives, please reach out to CaaS Platform support team at JenkinsHub flow with the evidence of False Positives along with the CVE Trigger ID, Gate, Check_output and Justification to Whitelist. When whitelisted, these false positives will be reported as Whitelisted in the future scan reports, similar to the example shown below:
+
+{
+  "Trigger_Id": "CVE-2017-18207+Python-2.7.5",
+  "Gate": "vulnerabilities",
+  "Check_output": "MEDIUM Vulnerability found in non-os package type (python) - /usr/lib64/python2.7/lib-dynload/Python (CVE-2017-18207 - https://nvd.nist.gov/vuln/detail/CVE-2017-18207)",
+  "Whitelisted": {
+    "matched_rule_id": "CVE-2017-18207+Python-2.7.5",
+    "whitelist_id": "37fd763e-1765-11e8-add4-3b16c029ac5c",
+    "whitelist_name": "Global Whitelist"
+  }
+}
+Based on the Cyber Security input, Whitelists are being configured for the requested Trigger_Id. This means that any image with the same Trigger_Id will be whitelisted globally.
+
+Cyber Security Team plans to conduct process-based compliance reviews on a scheduled basis. If CaaS-Container image scanning process is determined to be in scope for one of those reviews, then Cyber Security Team would want to look at the false positive evidence at that time and validate them.
+
+For complete list of Whitelisted Vulnerabilities, please see here
