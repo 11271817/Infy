@@ -1,0 +1,82 @@
+def branch = env.BRANCH_NAME.replace("-", "").toLowerCase()
+def itg_apiUrl = "https://dashboard-itg-dcos.dc01.its.hpecorp.net"
+def prod_apiUrl = "https://dashboard-dcos.dc01.its.hpecorp.net"
+def DR_itg_apiUrl = "https://dashboard-itg-dcos.dc02.its.hpecorp.net"
+def DR_prod_apiUrl = "https://dashboard-dcos.dc02.its.hpecorp.net"
+def itg_path = "./teams/ITG/"
+def prod_path = "./teams/PRO/"
+def datacenter = "COLO-1"
+def DR_datacenter = "COLO-2"
+def platform1 = "ITG"
+def platform2 = "PRO"
+def servicenow_URL = "https://hpe.service-now.com"
+def sys_id = "933fd1e1db6c4c10bbbd78fdaa96196f"
+def json
+ 
+pipeline {
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'10'))
+        timestamps()
+        ansiColor('xterm')
+    }
+    agent {
+        label 'docker-v17.06'
+    }
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }
+        }
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Init') {
+            steps {
+                // Read Vault values
+                script {
+                    json = vaultGetSecrets()
+                }
+
+                // Login to DTR
+                wrap([$class: 'MaskPasswordsBuildWrapper', varPasswordPairs: [[var: 'password', password: json.password]]]) {
+                   sh """
+                       docker login --username ${json.username} --password '${json.password}' hub.docker.hpecorp.net
+                   """
+                }
+            }
+        }
+         stage('Yaml lint') {
+             steps {
+                script {
+                    docker.image("hub.docker.hpecorp.net/dcoshub/ansible-lint:latest").inside {
+                         sh "ansible-lint ./teams/ITG/*.yml"
+                         sh "ansible-lint ./teams/PRO/*.yml"
+                     }
+                 }
+             }
+         } 
+        stage('Setup teams') {
+            steps {
+                script {
+                    if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "dev") {
+                        // Create | Update DCOS teams
+                        docker.image("hub.docker.hpecorp.net/caasonhpe/npm-dcos:latest").inside {
+                            wrap([$class: 'MaskPasswordsBuildWrapper', varPasswordPairs: [[var: 'dcospwd', password: json.dcospwd], [var: 'servicenow_token', password: json.token]]]){
+                                sh "node /app.js ${json.dcosuser} ${json.dcospwd} ${itg_apiUrl} ${itg_path} ${datacenter} ${platform1} ${servicenow_URL} ${sys_id} ${json.token}"
+                                sh "node /app.js ${json.dcosuser} ${json.dcospwd} ${prod_apiUrl} ${prod_path} ${datacenter} ${platform2} ${servicenow_URL} ${sys_id} ${json.token}"
+                                sh "node /app.js ${json.dcosuser} ${json.dcospwd} ${DR_itg_apiUrl} ${itg_path} ${DR_datacenter} ${platform1} ${servicenow_URL} ${sys_id} ${json.token}"
+                                sh "node /app.js ${json.dcosuser} ${json.dcospwd} ${DR_prod_apiUrl} ${prod_path} ${DR_datacenter} ${platform2} ${servicenow_URL} ${sys_id} ${json.token}"
+                            }
+                        }
+                    }else{
+                        echo "\u001B[31mSetup teams skipped\u001B[0m\n"
+                    }
+                }
+            }
+        }
+    }
+    
+}
