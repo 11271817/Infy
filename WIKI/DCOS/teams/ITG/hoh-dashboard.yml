@@ -1,0 +1,14 @@
+groupDescription: "hoh-dashboard"
+
+team: hoh-dashboard
+
+members:
+  - hoh-dashboard-deploy
+  - mark.moniz@hpe.com
+  - vincent.truong@hpe.com
+
+permissions:
+  - "dcos:adminrouter:service:marathon" : full
+  - "dcos:service:marathon:marathon:services:/hoh-dashboard" : full
+  - "dcos:service:marathon:marathon:services:/hoh-dashboard/dev" : full
+  - "dcos:service:marathon:marathon:services:/hoh-dashboard/itg" : full
